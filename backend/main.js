@@ -1,7 +1,9 @@
 const express = require("express");
 const Handlers = require("./handlers");
+const Logger = require("./logger")
 
 const handlers = new Handlers();
+const logger = new Logger();
 const app = express();
 const port = 5000;
 
@@ -10,5 +12,5 @@ app.get("/", (req, res)=>{
 });
 
 app.listen(port, ()=>{
-    console.log("Listening on port:"+port)
+    logger.debug("Listening on port:"+port)
 })

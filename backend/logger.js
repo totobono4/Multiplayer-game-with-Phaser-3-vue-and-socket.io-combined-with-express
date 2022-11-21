@@ -5,11 +5,20 @@ class Logger
         this.format="[Ti]:Tp:M"
         this.timeFormat = "HH:mm:ss"
         this.messageFormat = "M"
-        this.errorFormat="E>M"
     }
 
-    debug()
+    makeTime()
+    {        
+        return Date(Date.now()).format(this.timeFormat)
+    }
+
+    debug(message)
     {
-        let time = this.timeFormat.replace("HH", ).replace("mm", ).replace("ss", )
+        console.log(this.format.replace("Ti", this.makeTime()).replace("Tp", "DEBUG").replace("M", message))
+    }
+
+    error(message)
+    {
+        console.log(this.format.replace("Ti", this.makeTime()).replace("Tp", "ERROR").replace("M", message))
     }
 }
