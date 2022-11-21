@@ -1,8 +1,7 @@
-class Handlers{
-    root(req)
-    {
-        return "<p>hello world</p>"
-    }
+class Handlers {
+  root (req) {
+    return '<p>hello world</p>'
+  }
 }
 
-export default Handlers;
+export default Handlers
