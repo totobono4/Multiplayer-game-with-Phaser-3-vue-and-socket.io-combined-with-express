@@ -1,28 +1,17 @@
+import GameObject from "./gameobject";
 import Player from "./player";
 
-abstract class Collectible{
-
-    protected object:any;
+abstract class Collectible extends GameObject{
     protected context:any;
-    private weight:number;
 
-    public constructor(pc:any, weight:number=20)
+    public constructor(pc:any, weight:number|null=null)
     {
+        super(weight!=null);
         this.context = pc;
         this.weight=weight;
     }
 
-    public getWeight()
-    {
-        return this.weight;
-    }
-
-    public phaserObject():any
-    {
-        return this.object;
-    }
-
-    public collectibleBy(player:Player)
+    public collectibleBy(player:any)
     {
         this.context.physics.add.overlap(player, this.object, this.collect, null, this);
     }

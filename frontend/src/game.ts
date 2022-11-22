@@ -1,5 +1,6 @@
 import Collectible from "./collectible";
 import GameConstants from "./constants";
+import GameObject from "./gameobject";
 import Player from "./player"
 
 class Game
@@ -7,46 +8,57 @@ class Game
     private player:Player;
     private otherPlayer:Player;
     private platformGroups:any[];
-    private collectibles:Collectible[];
     private phaserContext:any;
+    private affectedByGravity:GameObject[];
 
     public constructor(phaserContext:any)
     {
         this.phaserContext = phaserContext;
         this.platformGroups = [];
-        this.collectibles = [];
         this.player = new Player(phaserContext);
+        this.affectedByGravity = [this.player];
+        this.setPlatformColliders(this.player);
     }
 
-    public addCollectible(collectible:Collectible, affectedByGravity:boolean=false)
-    {
-        this.collectibles.push(collectible);
-        collectible.collectibleBy(this.player.phaserObject());
-        if(affectedByGravity)
+    private setPlatformColliders(o:GameObject, collider:any=null)
+    {        
+        if(collider)
         {
-            collectible.phaserObject().body.setGravityY(GameConstants.GRAVITY*collectible.getWeight());
+            this.phaserContext.physics.add.collider(o.phaserObject(), collider);
+        }
+        else
+        {
             for(let group of this.platformGroups)
             {
-                this.phaserContext.physics.add.collider(collectible.phaserObject(), group);
+                this.phaserContext.physics.add.collider(o.phaserObject(), group);
             }
+        }
+    }
+
+    public addCollectible(collectible:Collectible)
+    {
+        collectible.collectibleBy(this.player.phaserObject());
+        if(collectible.isAffectedByGravity())
+        {
+            this.affectedByGravity.push(collectible);
+            this.setPlatformColliders(collectible);
         }
     }
 
     public addPlatformGroup(group:any)
     {
-        this.platformGroups.push(group)
-        this.phaserContext.physics.add.collider(this.player.phaserObject(), group);
-        //this.phaserContext.physics.add.collider(this.otherPlayer.phaserObject(), group);
+        this.platformGroups.push(group);
+        for(let o of this.affectedByGravity)
+        {
+            this.setPlatformColliders(o, group);
+        }
     }
 
     public setOtherPlayer(player:Player)
     {
         this.otherPlayer = player;
-    }
-
-    public setPlayer(player:Player)
-    {
-        this.player = player;
+        this.affectedByGravity.push(player);
+        this.setPlatformColliders(this.player);
     }
 
     public getPlayer():Player{
@@ -55,6 +67,14 @@ class Game
 
     public getOtherPlayer():Player{
         return this.otherPlayer;
+    }
+
+    public initGravity()
+    {
+        for(let o of this.affectedByGravity)
+        {
+            o.phaserObject().body.setGravityY(GameConstants.GRAVITY*o.getWeight());
+        }
     }
 }
 

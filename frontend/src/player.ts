@@ -1,15 +1,15 @@
 import constants from "./constants"
+import GameObject from "./gameobject";
 
-class Player{
-    private object:any;
-
+class Player extends GameObject{
     public constructor(context:any, weight:number=60)
     {
+        super(true);
+        this.weight = weight;
         let player = context.physics.add.sprite(100, 450, 'dude');
 
         player.setBounce(constants.PLAYER_BOUNCE, 0);
         player.setCollideWorldBounds(true);
-        player.body.setGravityY(constants.GRAVITY*weight);
         this.object = player;
 
         context.anims.create({
@@ -31,11 +31,6 @@ class Player{
             frameRate: 10,
             repeat: -1
         });
-    }
-
-    public phaserObject()
-    {
-        return this.object;
     }
 }
 

@@ -38,7 +38,8 @@ class Level1 implements Level{
         for(let p of this.platformGroups)
             game.addPlatformGroup(p);
         for(let s of this.stars)
-            game.addCollectible(s, true);
+            game.addCollectible(s);
+        game.initGravity();
     }
 }
 
