@@ -7,7 +7,7 @@ class Star extends Collectible
 
     public constructor(pc:any, x:number, y:number)
     {
-        super(pc);
+        super(pc, 10);
         this.x = x;
         this.y = y;
     }
