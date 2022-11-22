@@ -2,12 +2,12 @@ FROM node:18.12.0 as node-frontend-build
 
 WORKDIR /build
 
-COPY frontend/src ./src
-COPY frontend/webpack ./webpack
-COPY frontend/.babelrc .
-COPY frontend/index.html .
-COPY frontend/package.json .
-COPY frontend/tsconfig.json .
+COPY frontend/game/src ./src
+COPY frontend/game/webpack ./webpack
+COPY frontend/game/.babelrc .
+COPY frontend/game/index.html .
+COPY frontend/game/package.json .
+COPY frontend/game/tsconfig.json .
 
 RUN npm i
 RUN npm run build
