@@ -18,9 +18,10 @@
   "author": "Florian Boyer",
   "license": "ISC",
   "dependencies": {
-    "@geckos.io/phaser-on-nodejs": "^1.2.7",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "phaser": "^3.55.2"
+    "socket.io": "^4.5.3",
+    "uid": "^2.0.1"
   },
   "devDependencies": {
     "eslint": "^8.28.0",
