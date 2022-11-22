@@ -9,9 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node main.js",
-    "dev": "nodemon main.js",
-    "predocker": "docker volume create grap-form-volume && docker rmi grap-form-back:latest || echo 'no image deleted'",
-    "docker": "docker build -t grap-form-back . && dotenv -- cross-var docker run -it --rm --volume grap-form-volume:/backend --publish %port%:%port% --name grap-form-back grap-form-back"
+    "dev": "nodemon main.js"
   },
   "repository": {
     "type": "git",
@@ -26,9 +24,6 @@
     "uid": "^2.0.1"
   },
   "devDependencies": {
-    "cross-var": "^1.1.0",
-    "dotenv-cli": "^6.0.0",
-    "dotenv-run-script": "^0.2.0",
     "eslint": "^8.28.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
