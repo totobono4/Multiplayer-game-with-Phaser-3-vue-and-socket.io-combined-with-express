@@ -45,7 +45,7 @@ class Game
         }
     }
 
-    public addPlatformGroup(group:any)
+    public addPlatform(group:any)
     {
         this.platformGroups.push(group);
         for(let o of this.affectedByGravity)
@@ -69,11 +69,11 @@ class Game
         return this.otherPlayer;
     }
 
-    public initGravity()
+    public initGravity(gravity:number=GameConstants.BASE_GRAVITY)
     {
         for(let o of this.affectedByGravity)
         {
-            o.phaserObject().body.setGravityY(GameConstants.GRAVITY*o.getWeight());
+            o.phaserObject().body.setGravityY(gravity*o.getWeight());
         }
     }
 }

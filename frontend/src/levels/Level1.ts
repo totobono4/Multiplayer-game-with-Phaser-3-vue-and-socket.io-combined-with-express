@@ -6,25 +6,22 @@ import Player from "../player";
 
 class Level1 implements Level{
 
-    private platformGroups:any[]
+    private platforms:any[]
     private stars:Collectible[]
 
     public constructor()
     {
-        this.platformGroups = []
+        this.platforms = []
         this.stars=[]
     }
 
     public load(pc: any): void {        
         pc.add.image(400, 300, 'sky');
 
-        let platforms = pc.physics.add.staticGroup();
-        platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        platforms.create(600, 400, 'ground');
-        platforms.create(50, 250, 'ground');
-        platforms.create(750, 220, 'ground');
-
-        this.platformGroups.push(platforms);
+        this.platforms.push(pc.physics.add.staticSprite(400, 568, 'ground').setScale(2).refreshBody());
+        this.platforms.push(pc.physics.add.staticSprite(600, 400, 'ground'));
+        this.platforms.push(pc.physics.add.staticSprite(50, 250, 'ground'));
+        this.platforms.push(pc.physics.add.staticSprite(750, 220, 'ground'));
 
         for(let i = 0; i<400; i+=30)
         {
@@ -35,8 +32,8 @@ class Level1 implements Level{
     }
 
     public postLoad(game: Game): void {
-        for(let p of this.platformGroups)
-            game.addPlatformGroup(p);
+        for(let p of this.platforms)
+            game.addPlatform(p);
         for(let s of this.stars)
             game.addCollectible(s);
         game.initGravity();
