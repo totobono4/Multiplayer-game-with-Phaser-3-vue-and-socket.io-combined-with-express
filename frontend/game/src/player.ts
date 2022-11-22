@@ -1,16 +1,26 @@
 import constants from "./constants"
 import GameObject from "./gameobject";
+import Observable from "./observable";
 
 class Player extends GameObject{
-    public constructor(context:any, weight:number=60)
+
+    private position:Observable<{x:number, y:number}>;
+    private uuid:string;
+    
+    public constructor(context:any, uuid:string, weight:number=60)
     {
         super(true);
+        this.uuid=uuid;
+        this.position = new Observable<{x:number, y:number}>({x:0, y:0});
         this.weight = weight;
         let player = context.physics.add.sprite(100, 450, 'dude');
 
         player.setBounce(constants.PLAYER_BOUNCE, 0);
         player.setCollideWorldBounds(true);
         this.object = player;
+        this.position.addChangeListener((pos)=>{
+            this.object.setPosition(pos.x, pos.y);
+        })
 
         context.anims.create({
             key: 'left',
@@ -31,6 +41,17 @@ class Player extends GameObject{
             frameRate: 10,
             repeat: -1
         });
+    }
+
+    public getUuid()
+    {
+        return this.uuid;
+    }
+    
+
+    public getPosition()
+    {
+        return this.position;
     }
 }
 

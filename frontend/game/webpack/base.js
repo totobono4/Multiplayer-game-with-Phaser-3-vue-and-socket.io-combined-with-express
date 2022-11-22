@@ -45,7 +45,7 @@ module.exports = {
 
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Game', 
+      title: 'GameObjetsManager', 
       template: 'index.html' }) 
   ],
 
