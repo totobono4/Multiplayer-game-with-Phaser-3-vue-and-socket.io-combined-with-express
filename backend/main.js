@@ -8,25 +8,22 @@ const app = express()
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
 
+const gameServer = require('./game')
+
 io.on('connection', (socket) => {
   console.log('a user connected')
   socket.on('disconnect', () => {
     console.log('user disconnected')
   })
 
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg)
-    // socket.emit('chat message', msg)
-    // socket.broadcast.emit('chat message', msg)
-    console.log('message: ' + msg)
+  socket.on('pseudo', (pseudo) => {
+    socket.emit('uid', gameServer.createUser(pseudo))
   })
 })
 
 server.listen(port, () => {
-  console.log(`Application exemple à l'écoute sur le port ${port}!`)
+  console.log(`Serveur Graph-Form à l'écoute sur le port ${port}!`)
 })
-
-app.use(express.static(path.resolve(__dirname, 'node_modules')))
 
 app.get('/play', (req, res, next) => {
   res.sendFile(path.resolve(__dirname, 'index.html'))
