@@ -32,6 +32,7 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
-    "phaser": "^3.50.0"
+    "phaser": "^3.50.0",
+    "webpack-merge": "^5.8.0"
   }
 }
