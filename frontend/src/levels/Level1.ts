@@ -1,3 +1,5 @@
+import Collectible from "../collectible";
+import Star from "../collectibles/star";
 import Game from "../game";
 import Level from "../level";
 import Player from "../player";
@@ -5,10 +7,12 @@ import Player from "../player";
 class Level1 implements Level{
 
     private platformGroups:any[]
+    private stars:Collectible[]
 
     public constructor()
     {
         this.platformGroups = []
+        this.stars=[]
     }
 
     public load(pc: any): void {        
@@ -22,22 +26,20 @@ class Level1 implements Level{
 
         this.platformGroups.push(platforms);
 
-        let stars = pc.physics.add.group({
-            key: 'star',
-            repeat: 11,
-            setXY: { x: 12, y: 0, stepX: 70 }
-        });
-        
-        stars.children.iterate(function (child:any) {
-        
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-        
-        });
+        for(let i = 0; i<400; i+=30)
+        {
+            let star = new Star(pc, i, 0);
+            star.load()
+            this.stars.push(star);
+        }
     }
 
     public postLoad(game: Game): void {
         for(let p of this.platformGroups)
             game.addPlatformGroup(p);
+        for(let s of this.stars)
+            game.addCollectible(s);
+        game.initGravity();
     }
 }
 
