@@ -1,79 +1,97 @@
-import Collectible from "./collectible";
 import GameConstants from "./constants";
-import GameObject from "./gameobject";
-import Player from "./player"
+import GameObjetsManager from "./gameobjectsmanager";
+import Level1 from "./levels/Level1";
 
-class Game
-{
-    private player:Player;
-    private otherPlayer:Player;
-    private platformGroups:any[];
-    private phaserContext:any;
-    private affectedByGravity:GameObject[];
+import Phaser from "phaser"
 
-    public constructor(phaserContext:any)
+import bomb from "./assets/bomb.png"
+import dude from "./assets/dude.png"
+import platform from "./assets/platform.png"
+import sky from "./assets/sky.png"
+import star from "./assets/star.png"
+
+class Game{
+    private objectManager:GameObjetsManager
+    private context:any;
+    private config:any;
+
+    public constructor(width:number, height:number)
     {
-        this.phaserContext = phaserContext;
-        this.platformGroups = [];
-        this.player = new Player(phaserContext);
-        this.affectedByGravity = [this.player];
-        this.setPlatformColliders(this.player);
-    }
-
-    private setPlatformColliders(o:GameObject, collider:any=null)
-    {        
-        if(collider)
-        {
-            this.phaserContext.physics.add.collider(o.phaserObject(), collider);
-        }
-        else
-        {
-            for(let group of this.platformGroups)
-            {
-                this.phaserContext.physics.add.collider(o.phaserObject(), group);
+        this.config = {
+            type: Phaser.AUTO,
+            width: width,
+            height: height,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                }
+            },
+            scene: {
+                preload: this.preload,
+                create: this.create,
+                update: this.update
             }
-        }
+        };
     }
 
-    public addCollectible(collectible:Collectible)
+    public start()
     {
-        collectible.collectibleBy(this.player.phaserObject());
-        if(collectible.isAffectedByGravity())
+        new Phaser.Game(this.config);
+    }
+
+    private preload()
+    {
+        this.context.load.image('sky', sky);
+        this.context.load.image('ground', platform);
+        this.context.load.image('star', star);
+        this.context.load.image('bomb', bomb);
+        this.context.load.spritesheet('dude', 
+            dude,
+            { frameWidth: 32, frameHeight: 48 }
+        );
+    }
+
+    private create()
+    {
+        localStorage.setItem("uuid", "00000");
+        let level = new Level1()
+        level.load(this);
+        this.objectManager = new GameObjetsManager(this);
+        level.postLoad(this.objectManager);
+    }
+
+    private update()
+    {
+        if(this.objectManager.getOtherPlayer())
         {
-            this.affectedByGravity.push(collectible);
-            this.setPlatformColliders(collectible);
-        }
-    }
+            let player = this.objectManager.getPlayer().phaserObject();
+            let cursors = this.context.input.keyboard.addKeys(
+                {jump:Phaser.Input.Keyboard.KeyCodes.SPACE,
+                left:Phaser.Input.Keyboard.KeyCodes.Q,
+                right:Phaser.Input.Keyboard.KeyCodes.D});
+            if (cursors.left.isDown)
+            {
+                player.setVelocityX(-160);
 
-    public addPlatform(group:any)
-    {
-        this.platformGroups.push(group);
-        for(let o of this.affectedByGravity)
-        {
-            this.setPlatformColliders(o, group);
-        }
-    }
+                player.anims.play('left', true);
+            }
+            else if (cursors.right.isDown)
+            {
+                player.setVelocityX(160);
 
-    public setOtherPlayer(player:Player)
-    {
-        this.otherPlayer = player;
-        this.affectedByGravity.push(player);
-        this.setPlatformColliders(this.player);
-    }
+                player.anims.play('right', true);
+            }
+            else
+            {
+                player.setVelocityX(0);
 
-    public getPlayer():Player{
-        return this.player;
-    }
+                player.anims.play('turn');
+            }
 
-    public getOtherPlayer():Player{
-        return this.otherPlayer;
-    }
-
-    public initGravity(gravity:number=GameConstants.BASE_GRAVITY)
-    {
-        for(let o of this.affectedByGravity)
-        {
-            o.phaserObject().body.setGravityY(gravity*o.getWeight());
+            if (cursors.jump.isDown && player.body.touching.down)
+            {
+                player.setVelocityY(-GameConstants.PLAYER_JUMP_FORCE);
+            }
         }
     }
 }

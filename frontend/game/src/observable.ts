@@ -1,14 +1,14 @@
-class Observable{
-    private value:any;
-    private listeners:((v:any)=>void)[]
+class Observable<T>{
+    private value:T;
+    private listeners:((v:T)=>void)[]
 
-    public constructor(value:any)
+    public constructor(value:T)
     {
         this.value = value;
         this.listeners = []
     }
 
-    public addChangeListener(listener:(v:any)=>void)
+    public addChangeListener(listener:(v:T)=>void)
     {
         this.listeners.push(listener)
     }
@@ -18,7 +18,7 @@ class Observable{
         return this.value;
     }
 
-    public set(value:any)
+    public set(value:T)
     {
         this.value = value;
         for(let listener of this.listeners)

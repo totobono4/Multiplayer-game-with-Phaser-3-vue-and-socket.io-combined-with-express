@@ -1,8 +1,8 @@
-import Game from "./game";
+import GameObjetsManager from "./gameobjectsmanager";
 
 interface Level{
     load(phazerContext:any):void;
-    postLoad(game:Game):void
+    postLoad(game:GameObjetsManager):void
 }
 
 export default Level

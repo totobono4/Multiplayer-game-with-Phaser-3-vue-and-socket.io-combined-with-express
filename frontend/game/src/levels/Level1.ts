@@ -1,6 +1,6 @@
 import Collectible from "../collectible";
 import Star from "../collectibles/star";
-import Game from "../game";
+import GameObjetsManager from "../gameobjectsmanager";
 import Level from "../level";
 import Player from "../player";
 
@@ -31,7 +31,7 @@ class Level1 implements Level{
         }
     }
 
-    public postLoad(game: Game): void {
+    public postLoad(game: GameObjetsManager): void {
         for(let p of this.platforms)
             game.addPlatform(p);
         for(let s of this.stars)
