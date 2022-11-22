@@ -1,4 +1,5 @@
 import Collectible from "./collectible";
+import GameConstants from "./constants";
 import Player from "./player"
 
 class Game
@@ -23,7 +24,7 @@ class Game
         collectible.collectibleBy(this.player.phaserObject());
         if(affectedByGravity)
         {
-            collectible.phaserObject().body.setGravityY(5);
+            collectible.phaserObject().body.setGravityY(GameConstants.GRAVITY*collectible.getWeight());
             for(let group of this.platformGroups)
             {
                 this.phaserContext.physics.add.collider(collectible.phaserObject(), group);

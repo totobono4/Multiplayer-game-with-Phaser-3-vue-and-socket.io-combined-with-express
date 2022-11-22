@@ -3,13 +3,13 @@ import constants from "./constants"
 class Player{
     private object:any;
 
-    public constructor(context:any)
+    public constructor(context:any, weight:number=60)
     {
         let player = context.physics.add.sprite(100, 450, 'dude');
 
         player.setBounce(constants.PLAYER_BOUNCE, 0);
         player.setCollideWorldBounds(true);
-        player.body.setGravityY(constants.PLAYER_GRAVITY);
+        player.body.setGravityY(constants.GRAVITY*weight);
         this.object = player;
 
         context.anims.create({

@@ -4,10 +4,17 @@ abstract class Collectible{
 
     protected object:any;
     protected context:any;
+    private weight:number;
 
-    public constructor(pc:any)
+    public constructor(pc:any, weight:number=20)
     {
         this.context = pc;
+        this.weight=weight;
+    }
+
+    public getWeight()
+    {
+        return this.weight;
     }
 
     public phaserObject():any
