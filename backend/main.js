@@ -21,12 +21,13 @@ io.on('connection', (socket) => {
   })
 
   socket.on('pseudo', (pseudo) => {
+    if (typeof (pseudo) !== 'string') return
     socket.emit('uid', gameServer.createUser(pseudo))
   })
 })
 
 server.listen(port, () => {
-  console.log(`Serveur Graph-Form à l'écoute sur le port ${port}!`)
+  console.log(`Serveur Graph-Form à l'écoute sur le port ${port}`)
 })
 
 app.get('/play', (req, res, next) => {
