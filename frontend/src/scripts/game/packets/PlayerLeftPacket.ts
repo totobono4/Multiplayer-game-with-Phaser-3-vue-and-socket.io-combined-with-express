@@ -1,18 +1,19 @@
 import Player from "../player";
-import Packet from "./packet";
+import {Packet, PacketType} from "./packet";
 
-class PlayerLeftPacket implements Packet
+class PlayerLeftPacket extends Packet
 {
     private player:Player;
     public constructor(player:Player)
     {
+        super();
         this.player=player;
     }
 
     toJson(): string {
         return JSON.stringify({
             "uid":this.player.getUid(),
-            "type":"PACKET_PLAYER_LEFT"
+            "type":PacketType.PLAYER_LEFT
         })
     }
 }

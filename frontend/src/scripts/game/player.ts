@@ -48,6 +48,13 @@ class Player extends GameObject{
         return this.uid;
     }
     
+    public getSpritePosition()
+    {
+        return {
+            x:this.object.x,
+            y:this.object.y
+        }
+    }
 
     public getPosition()
     {
