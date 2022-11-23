@@ -1,12 +1,19 @@
 const path = require('path')
 
+const frontPath = path.resolve('/front')
+
 require('dotenv').config()
 const port = process.env.port
 
+const history = require('connect-history-api-fallback')
 const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
-const io = require('socket.io')(server)
+const io = require('socket.io')(server, {
+  cors: {
+    origin: '*'
+  }
+})
 
 const gameServer = require('./game')
 
@@ -16,15 +23,29 @@ io.on('connection', (socket) => {
     console.log('user disconnected')
   })
 
-  socket.on('pseudo', (pseudo) => {
-    socket.emit('uid', gameServer.createUser(pseudo))
+  socket.on('connecting', (connecting) => {
+    const pseudo = connecting.pseudo
+    if (typeof (pseudo) !== 'string') return
+    socket.emit('connected', {
+      uid: gameServer.createUser(pseudo, socket)
+    })
+  })
+
+  socket.on(gameServer.serverEvents.PLAYER_READY, (ready) => {
+    const user = gameServer.getUserByUid(ready.uid)
+    if (!user) return
+    user.socket = socket
+    gameServer.serverEvent.emit(gameServer.serverEvents.PLAYER_READY, ready)
   })
 })
 
 server.listen(port, () => {
-  console.log(`Serveur Graph-Form à l'écoute sur le port ${port}!`)
+  console.log(`Serveur Graph-Form à l'écoute sur le port ${port}`)
 })
 
-app.get('/play', (req, res, next) => {
-  res.sendFile(path.resolve(__dirname, 'index.html'))
+app.use(history())
+app.use(express.static(frontPath))
+
+app.get('/', (req, res, next) => {
+  res.sendFile(path.resolve(frontPath, 'index.html'))
 })
