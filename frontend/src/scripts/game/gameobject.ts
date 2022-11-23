@@ -1,5 +1,5 @@
 abstract class GameObject{
-    protected weight:number;
+    protected weight:number|null;
     protected object:any;
     protected gravityAffected:boolean;
 

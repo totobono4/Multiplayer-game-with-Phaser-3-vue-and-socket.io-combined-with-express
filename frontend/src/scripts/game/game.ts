@@ -1,5 +1,3 @@
-import Level1 from "./levels/Level1";
-
 import Phaser from "phaser"
 import type Level from "./level";
 

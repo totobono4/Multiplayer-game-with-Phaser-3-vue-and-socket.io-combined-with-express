@@ -10,6 +10,7 @@ abstract class Level extends Phaser.Scene{
     private player:Player;
     private otherPlayer:Player;
     private objects:GameObject[];
+    private lastUpdateDate:number;
 
     protected constructor(name:string, gravity:number=GameConstants.BASE_GRAVITY)
     {
@@ -30,6 +31,7 @@ abstract class Level extends Phaser.Scene{
         });
         this.platforms = []
         this.objects = []
+        this.lastUpdateDate = Date.now();
     }
 
     private setPlatformColliders(o:GameObject, collider:any=null)
@@ -63,7 +65,7 @@ abstract class Level extends Phaser.Scene{
         for(let o of this.objects)
         {
             if(o.isAffectedByGravity())
-                o.phaserObject().body.setGravityY(gravity*o.getWeight());
+                o.phaserObject().body.setGravityY(gravity*(o?.getWeight()??1));
         }
     }
     
@@ -92,11 +94,17 @@ abstract class Level extends Phaser.Scene{
 
             player.anims.play('turn');
         }
-
         if (cursors.up.isDown && player.body.touching.down)
         {
             player.setVelocityY(-GameConstants.PLAYER_JUMP_FORCE);
         }
+
+        if(Date.now()-this.lastUpdateDate >= 500)
+        {
+            
+        }
+        this.onUpdate(Date.now()-this.lastUpdateDate);
+        this.lastUpdateDate = Date.now();
     }
 
     protected addCollectible(collectible:Collectible)
@@ -120,7 +128,7 @@ abstract class Level extends Phaser.Scene{
 
     protected createPlayers()
     {
-        this.player = new Player(this, localStorage.getItem("uid"));
+        this.player = new Player(this, localStorage.getItem("uid")??"00000");
         console.log(this.player.getUid())
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
@@ -128,6 +136,8 @@ abstract class Level extends Phaser.Scene{
         this.objects.push(this.otherPlayer);
         this.setPlatformColliders(this.otherPlayer);
     }
+
+    protected onUpdate(timeElapsed:number){}
 
     public abstract preload():void;
     protected abstract beforePlayer():void;
