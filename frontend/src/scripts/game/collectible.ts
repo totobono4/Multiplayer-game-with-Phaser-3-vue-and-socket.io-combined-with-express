@@ -1,5 +1,4 @@
 import GameObject from "./gameobject";
-import Player from "./player";
 
 abstract class Collectible extends GameObject{
     protected context:any;

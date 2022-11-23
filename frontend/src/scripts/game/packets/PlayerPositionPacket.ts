@@ -1,5 +1,5 @@
 import Player from "../player";
-import Packet from "./packet";
+import {Packet} from "./packet";
 
 class PlayerJumpPacket implements Packet
 {
