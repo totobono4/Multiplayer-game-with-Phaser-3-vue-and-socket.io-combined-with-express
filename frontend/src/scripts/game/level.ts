@@ -13,7 +13,6 @@ abstract class Level extends Phaser.Scene{
     private otherPlayer:Player;
     private objects:GameObject[];
     private lastUpdateDate:number;
-    private lastEmitionDate:number;
 
     protected constructor(name:string, gravity:number=GameConstants.BASE_GRAVITY)
     {
@@ -35,7 +34,6 @@ abstract class Level extends Phaser.Scene{
         this.platforms = []
         this.objects = []
         this.lastUpdateDate = Date.now();
-        this.lastEmitionDate = Date.now();
     }
 
     private setPlatformColliders(o:GameObject, collider:any=null)
@@ -103,20 +101,15 @@ abstract class Level extends Phaser.Scene{
             player.setVelocityY(-GameConstants.PLAYER_JUMP_FORCE);
         }
 
-        if(Date.now()-this.lastEmitionDate >= 1)
-        {
-            console.log(this.player.phaserObject())
-            EventManager.getInstance().emit({
-                data:{
-                    pos:this.player.getSpritePosition(),
-                    animationstate:this.player.phaserObject().anims.currentAnim.key,
-                    velocity:this.player.phaserObject().body.velocity
-                },
-                sender:this.player.getUid(),
-                name:"playerMove"
-            })
-            this.lastEmitionDate = Date.now();
-        }
+        EventManager.getInstance().emit({
+            data:{
+                pos:this.player.getSpritePosition(),
+                animationstate:this.player.phaserObject().anims.currentAnim.key,
+                velocity:this.player.phaserObject().body.velocity
+            },
+            sender:this.player.getUid(),
+            name:"playerMove"
+        })
         this.onUpdate(Date.now()-this.lastUpdateDate);
         this.lastUpdateDate = Date.now();
     }
@@ -158,7 +151,6 @@ abstract class Level extends Phaser.Scene{
     protected createPlayers()
     {
         this.player = new Player(this, localStorage.getItem("uid")??"00000");
-        console.log(this.player.getUid())
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
         this.otherPlayer = new Player(this, "111111", 0);

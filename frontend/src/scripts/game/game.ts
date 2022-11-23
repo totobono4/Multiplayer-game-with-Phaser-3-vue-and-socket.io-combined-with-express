@@ -1,7 +1,7 @@
 import Phaser from "phaser"
 import EventManager from "./eventmanager";
 import type Level from "./level";
-import { PacketManager } from "./packetManager";
+import { PacketManager } from "./packetmanager";
 import PlayerPositionPacket from "./packets/PlayerPositionPacket";
 
 class Game{
