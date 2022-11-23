@@ -1,5 +1,7 @@
 const path = require('path')
 
+const frontPath = path.resolve('/front')
+
 require('dotenv').config()
 const port = process.env.port
 
@@ -30,6 +32,8 @@ server.listen(port, () => {
   console.log(`Serveur Graph-Form à l'écoute sur le port ${port}`)
 })
 
-app.get('/play', (req, res, next) => {
-  res.sendFile(path.resolve(__dirname, 'index.html'))
+app.use(express.static(frontPath))
+
+app.get('/', (req, res, next) => {
+  res.sendFile(path.resolve('index.html'))
 })
