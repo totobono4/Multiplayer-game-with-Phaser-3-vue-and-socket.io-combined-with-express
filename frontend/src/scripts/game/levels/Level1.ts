@@ -14,7 +14,7 @@ class Level1 extends Level{
         super("level 1")  
     }    
 
-    public preload()
+    protected loadAssets()
     {
         this.load.image('sky', skySprite);
         this.load.image('ground', platformSprite);
