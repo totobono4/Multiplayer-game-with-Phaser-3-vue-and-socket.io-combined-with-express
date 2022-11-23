@@ -23,16 +23,19 @@ io.on('connection', (socket) => {
     console.log('user disconnected')
   })
 
-  socket.on('pseudo', (pseudo) => {
+  socket.on('connecting', (connecting) => {
+    const pseudo = connecting.pseudo
     if (typeof (pseudo) !== 'string') return
-    socket.emit('uid', gameServer.createUser(pseudo))
+    socket.emit('connected', {
+      uid: gameServer.createUser(pseudo, socket)
+    })
   })
 
-  socket.on('message', async (message) => {
-    console.dir(message)
-    const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-    await delay(1000) /// waiting 1 second.
-    io.emit('reponse', message)
+  socket.on(gameServer.serverEvents.PLAYER_READY, (ready) => {
+    const user = gameServer.getUserByUid(ready.uid)
+    if (!user) return
+    user.socket = socket
+    gameServer.serverEvent.emit(gameServer.serverEvents.PLAYER_READY, ready)
   })
 })
 
