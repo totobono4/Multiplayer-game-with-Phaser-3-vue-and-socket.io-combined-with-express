@@ -5,6 +5,7 @@ const frontPath = path.resolve('/front')
 require('dotenv').config()
 const port = process.env.port
 
+const history = require('connect-history-api-fallback')
 const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
@@ -39,8 +40,9 @@ server.listen(port, () => {
   console.log(`Serveur Graph-Form à l'écoute sur le port ${port}`)
 })
 
+app.use(history())
 app.use(express.static(frontPath))
 
-app.get(/.*/, (req, res, next) => {
+app.get('/', (req, res, next) => {
   res.sendFile(path.resolve(frontPath, 'index.html'))
 })
