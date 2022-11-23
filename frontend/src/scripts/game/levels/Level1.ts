@@ -17,6 +17,7 @@ class Level1 extends Level{
     protected loadAssets()
     {
         this.load.image('sky', skySprite);
+        console.log(starSprite)
         this.load.image('ground', platformSprite);
         this.load.image('star', starSprite);
         this.load.image('bomb', bombSprite);
