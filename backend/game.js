@@ -72,7 +72,6 @@ serverEvent.on(serverEvents.PLAYER_JOINED, (user) => {
   } else {
     user.setRoom(freeRoom)
     freeRoom.addUser(user)
-    console.dir(gameServer)
   }
 })
 
