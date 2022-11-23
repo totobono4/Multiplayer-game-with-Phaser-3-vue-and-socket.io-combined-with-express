@@ -160,7 +160,13 @@ abstract class Level extends Phaser.Scene{
 
     protected onUpdate(timeElapsed:number){}
 
-    public abstract preload():void;
+    public preload()
+    {
+        this.load.baseURL = `http://${window.location.host}`
+        this.loadAssets();
+    }
+
+    protected abstract loadAssets():void;
     protected abstract beforePlayer():void;
     protected abstract afterPlayer():void;
 }
