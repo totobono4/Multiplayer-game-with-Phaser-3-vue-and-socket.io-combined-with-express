@@ -3,6 +3,8 @@ import GameConstants from "./constants";
 import GameObject from "./gameobject";
 import Player from "./player";
 import Phaser from "phaser"
+import EventManager from "./eventmanager";
+import { PacketType } from "./packets/packet";
 
 abstract class Level extends Phaser.Scene{
     
@@ -11,6 +13,7 @@ abstract class Level extends Phaser.Scene{
     private otherPlayer:Player;
     private objects:GameObject[];
     private lastUpdateDate:number;
+    private lastEmitionDate:number;
 
     protected constructor(name:string, gravity:number=GameConstants.BASE_GRAVITY)
     {
@@ -32,6 +35,7 @@ abstract class Level extends Phaser.Scene{
         this.platforms = []
         this.objects = []
         this.lastUpdateDate = Date.now();
+        this.lastEmitionDate = Date.now();
     }
 
     private setPlatformColliders(o:GameObject, collider:any=null)
@@ -99,9 +103,19 @@ abstract class Level extends Phaser.Scene{
             player.setVelocityY(-GameConstants.PLAYER_JUMP_FORCE);
         }
 
-        if(Date.now()-this.lastUpdateDate >= 500)
+        if(Date.now()-this.lastEmitionDate >= 1)
         {
-            
+            console.log(this.player.phaserObject())
+            EventManager.getInstance().emit({
+                data:{
+                    pos:this.player.getSpritePosition(),
+                    animationstate:this.player.phaserObject().anims.currentAnim.key,
+                    velocity:this.player.phaserObject().body.velocity
+                },
+                sender:this.player.getUid(),
+                name:"playerMove"
+            })
+            this.lastEmitionDate = Date.now();
         }
         this.onUpdate(Date.now()-this.lastUpdateDate);
         this.lastUpdateDate = Date.now();
@@ -119,10 +133,25 @@ abstract class Level extends Phaser.Scene{
         }
     }
 
+    private registerEvents()
+    {
+        EventManager.getInstance().on(PacketType.PLAYER_POS, (e)=>{
+            this.otherPlayer.getPosition().set({
+                x:e.data.pos.x,
+                y:e.data.pos.y
+            })
+            if(this.otherPlayer.phaserObject().anims.currentAnim?.key !== e.data.animationstate)
+                this.otherPlayer.phaserObject().anims.play(e.data.animationstate)
+            this.otherPlayer.phaserObject().body.setVelocityX(e.data.velocity.x)
+            this.otherPlayer.phaserObject().body.setVelocityY(e.data.velocity.y)
+        })
+    }
+
     public create(): void {        
         this.beforePlayer();
         this.createPlayers();
         this.afterPlayer();
+        this.registerEvents();
         this.initGravity();
     }
 
@@ -132,7 +161,7 @@ abstract class Level extends Phaser.Scene{
         console.log(this.player.getUid())
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
-        this.otherPlayer = new Player(this, "111111");
+        this.otherPlayer = new Player(this, "111111", 0);
         this.objects.push(this.otherPlayer);
         this.setPlatformColliders(this.otherPlayer);
     }
