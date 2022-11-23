@@ -15,6 +15,12 @@ class Game{
         };
     }
 
+    public attachTo(container:string)
+    {
+        this.config.parent=container;
+        return this;
+    }
+
     public start()
     {
         new Phaser.Game(this.config);

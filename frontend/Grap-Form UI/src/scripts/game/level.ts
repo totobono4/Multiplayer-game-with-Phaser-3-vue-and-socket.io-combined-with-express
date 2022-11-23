@@ -120,7 +120,8 @@ abstract class Level extends Phaser.Scene{
 
     protected createPlayers()
     {
-        this.player = new Player(this, localStorage.getItem("uuid"));
+        this.player = new Player(this, localStorage.getItem("uid"));
+        console.log(this.player.getUid())
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
         this.otherPlayer = new Player(this, "111111");

@@ -11,8 +11,9 @@ class PlayerJumpPacket implements Packet
 
     toJson(): string {
         return JSON.stringify({
-            "uuid":this.player.getUuid(),
-            "type":"PACKET_PLAYER_JUMP"
+            "uid":this.player.getUid(),
+            "type":"PACKET_PLAYER_POS",
+            "data":this.player.getPosition().get()
         })
     }
 }
