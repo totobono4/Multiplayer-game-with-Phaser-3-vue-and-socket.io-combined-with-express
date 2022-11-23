@@ -34,6 +34,6 @@ server.listen(port, () => {
 
 app.use(express.static(frontPath))
 
-app.get('/', (req, res, next) => {
-  res.sendFile(path.resolve('index.html'))
+app.get(/.*/, (req, res, next) => {
+  res.sendFile(path.resolve(frontPath, 'index.html'))
 })
