@@ -5,12 +5,12 @@ import Observable from "./observable";
 class Player extends GameObject{
 
     private position:Observable<{x:number, y:number}>;
-    private uuid:string;
+    private uid:string;
     
-    public constructor(context:any, uuid:string, weight:number=60)
+    public constructor(context:any, uid:string, weight:number=60)
     {
         super(true);
-        this.uuid=uuid;
+        this.uid=uid;
         this.position = new Observable<{x:number, y:number}>({x:0, y:0});
         this.weight = weight;
         let player = context.physics.add.sprite(100, 450, 'dude');
@@ -43,9 +43,9 @@ class Player extends GameObject{
         });
     }
 
-    public getUuid()
+    public getUid()
     {
-        return this.uuid;
+        return this.uid;
     }
     
 

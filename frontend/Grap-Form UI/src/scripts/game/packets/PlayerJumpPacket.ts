@@ -1,7 +1,7 @@
 import Player from "../player";
 import Packet from "./packet";
 
-class PlayerLeftPacket implements Packet
+class PlayerJumpPacket implements Packet
 {
     private player:Player;
     public constructor(player:Player)
@@ -11,10 +11,10 @@ class PlayerLeftPacket implements Packet
 
     toJson(): string {
         return JSON.stringify({
-            "uuid":this.player.getUuid(),
-            "type":"PACKET_PLAYER_LEFT"
+            "uid":this.player.getUid(),
+            "type":"PACKET_PLAYER_JUMP"
         })
     }
 }
 
-export default PlayerLeftPacket;
+export default PlayerJumpPacket;
