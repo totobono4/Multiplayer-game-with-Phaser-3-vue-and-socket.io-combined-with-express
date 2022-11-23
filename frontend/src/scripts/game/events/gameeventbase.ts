@@ -3,4 +3,4 @@ interface GameEventBase{
     data:any;
 }
 
-export default GameEventBase
+export { GameEventBase }

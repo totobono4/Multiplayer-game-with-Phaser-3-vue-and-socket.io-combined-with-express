@@ -3,7 +3,6 @@ import GameConstants from "./constants";
 import GameObject from "./gameobject";
 import Player from "./player";
 import Phaser from "phaser"
-import EventManager from "./eventmanager";
 
 abstract class Level extends Phaser.Scene{
     
@@ -102,10 +101,7 @@ abstract class Level extends Phaser.Scene{
 
         if(Date.now()-this.lastUpdateDate >= 500)
         {
-            EventManager.getInstance().emit({
-                name:"platerMove",
-                data:this.player
-            })
+            
         }
         this.onUpdate(Date.now()-this.lastUpdateDate);
         this.lastUpdateDate = Date.now();
