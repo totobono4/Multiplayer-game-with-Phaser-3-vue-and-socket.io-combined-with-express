@@ -1,21 +1,25 @@
 import Player from "../player";
-import {Packet} from "./packet";
+import {Packet, PacketType} from "./packet";
 
-class PlayerJumpPacket implements Packet
+class PlayerPositionPacket extends Packet
 {
-    private player:Player;
-    public constructor(player:Player)
+    private uid:string;
+    private position:{x:number, y:number}
+
+    public constructor(uid:string, position:{x:number, y:number})
     {
-        this.player=player;
+        super();
+        this.uid = uid;
+        this.position = position;
     }
 
     toJson(): string {
         return JSON.stringify({
-            "uid":this.player.getUid(),
-            "type":"PACKET_PLAYER_POS",
-            "data":this.player.getPosition().get()
+            uid:this.uid,
+            type:PacketType.PLAYER_POS,
+            data:this.position
         })
     }
 }
 
-export default PlayerJumpPacket;
+export default PlayerPositionPacket;
