@@ -26,6 +26,13 @@ io.on('connection', (socket) => {
     if (typeof (pseudo) !== 'string') return
     socket.emit('uid', gameServer.createUser(pseudo))
   })
+
+  socket.on('message', async (message) => {
+    console.dir(message)
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+    await delay(1000) /// waiting 1 second.
+    io.emit('reponse', message)
+  })
 })
 
 server.listen(port, () => {
