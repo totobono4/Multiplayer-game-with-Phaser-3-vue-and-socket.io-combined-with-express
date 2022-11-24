@@ -25,12 +25,13 @@ class Level1 extends Level{
 
     protected create()
     {        
-        this.add.image(400, 300, 'sky');
+        this.setBackground("sky")
 
-        this.addPlatform(new Platform(this, 400, 568, 2, 1));
-        this.addPlatform(new Platform(this, 600, 400, 1, 1));
-        this.addPlatform(new Platform(this, 50, 250, 1, 1));
-        this.addPlatform(new Platform(this, 750, 220, 1, 1));
+        this.addPlatform(new Platform(this, 0, 90, 5, 2));
+    }
+
+    protected getSpawnPoint(): { x: number; y: number; } {
+        return {x:10, y:80}
     }
 }
 

@@ -9,10 +9,11 @@ import type Platform from "./gameobjects/platform";
 abstract class Level extends Phaser.Scene{
     
     protected platforms:Platform[]
-    private player:Player|undefined;
+    protected player:Player|undefined;
     private otherPlayers:{[key:string]:Player};
     private objects:GameObject[];
     private lastUpdateDate:number;
+    protected dims:{width:number, height:number};
 
     protected constructor(name:string, gravity:number=GameConstants.BASE_GRAVITY)
     {
@@ -31,6 +32,7 @@ abstract class Level extends Phaser.Scene{
                 }
             },
         });
+        this.dims = {width:0, height:0};
         this.platforms = []
         this.objects = []
         this.otherPlayers = {}
@@ -105,7 +107,7 @@ abstract class Level extends Phaser.Scene{
 
         EventManager.getInstance().emit({
             data:{
-                pos:this.player.getSpritePosition(),
+                pos:this.player.getSpritePosition(this.dims),
                 animationstate:this.player.phaserObject().anims.currentAnim.key,
                 velocity:this.player.phaserObject().body.velocity,
                 roomId:this.player.getRoomId()
@@ -123,8 +125,8 @@ abstract class Level extends Phaser.Scene{
             if(!(e.sender in this.otherPlayers))
                 return;
             this.otherPlayers[e.sender].getPosition().set({
-                x:e.data.pos.x,
-                y:e.data.pos.y
+                x:e.data.pos.x*this.dims.width,
+                y:e.data.pos.y*this.dims.height
             })
             if(this.otherPlayers[e.sender].phaserObject().anims.currentAnim?.key !== e.data.animationstate)
                 this.otherPlayers[e.sender].phaserObject().anims.play(e.data.animationstate)
@@ -136,6 +138,11 @@ abstract class Level extends Phaser.Scene{
             this.otherPlayers[data.sender] = new Player(this, data.sender, data.data.roomId, data.data.transformist, 0);
             this.objects.push(this.otherPlayers[data.sender]);
             this.setPlatformColliders(this.otherPlayers[data.sender]);
+        })
+        EventManager.getInstance().on(EventType.PLAYER_LEFT, data=>{
+            if(!(data.sender in this.otherPlayers) || data.sender == this.player?.getUid()) return;
+            this.otherPlayers[data.sender].destroy();
+            delete this.otherPlayers[data.sender];           
         })
     }
 
@@ -154,15 +161,33 @@ abstract class Level extends Phaser.Scene{
         this.player = new Player(this, uid, roomId);
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
+        let spawnPoint = this.getSpawnPoint();
+        this.player.setSpawnPoint(spawnPoint.x, spawnPoint.y/100*this.dims.height);
+        this.player.respawn();
     }
 
     public preload()
     {
+        this.dims = this.sys.canvas;
         this.load.baseURL = `http://${window.location.host}`
         this.loadAssets();
     }
 
+    protected setBackground(key:string)
+    {
+        let bg = this.add.image(0, 0, key);
+        let scaleX = this.dims.width / bg.width
+        let scaleY = this.dims.height / bg.height
+        bg.scaleX = scaleX*2;
+        bg.scaleY = scaleY*2;
+    }
 
+    public getDimentions()
+    {
+        return this.dims;
+    }
+
+    protected abstract getSpawnPoint():{x:number, y:number};
     protected onUpdate(timeElapsed:number){}
     protected abstract loadAssets():void;
     protected abstract create():void;

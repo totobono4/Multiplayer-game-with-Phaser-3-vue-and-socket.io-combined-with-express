@@ -1,7 +1,8 @@
 enum EventType{
     PLAYER_STATE_RECIEVED,
     PLAYER_STATE_READY,
-    PLAYER_JOINED
+    PLAYER_JOINED,
+    PLAYER_LEFT
 }
 
 abstract class GameEventBase{

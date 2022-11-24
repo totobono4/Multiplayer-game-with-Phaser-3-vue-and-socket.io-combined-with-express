@@ -1,7 +1,8 @@
 enum PacketChannel{
     PLAYER_STATE="playerState",
     PLAYER_READY_SEND="playerReady",
-    PLAYER_READY_RECIEVE="playerJoined"
+    PLAYER_READY_RECIEVE="playerJoined",
+    PLAYER_LEFT="playerLeft"
 }
 
 abstract class Packet{
