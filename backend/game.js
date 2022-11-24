@@ -4,6 +4,10 @@ const { EventEmitter } = require('node:events')
 class ServerEvent extends EventEmitter {}
 const serverEvent = new ServerEvent()
 
+/**
+ * Les différents events du serveur.
+ * On s'en sert aussi pour communiquer avec les sockets des utilisateurs, ce sont des events serveurs.
+ */
 const serverEvents = {
   PLAYER_LOGGED: 'playerLogged',
   PLAYER_READY: 'playerReady',
@@ -12,22 +16,49 @@ const serverEvents = {
   PLAYER_LEFT: 'playerLeft'
 }
 
+/**
+ * Les états d'un utilisateur
+ */
 const userStates = {
   DISCONNECTED: 'disconnected',
   WAITING: 'waiting',
   PLAYING: 'playing'
 }
 
+/**
+ * Les constantes de jeu
+ */
+const gameConsts = {
+  MAX_ROOM_CAPACITY: 2
+}
+
+/**
+ * La classe Room, c'est un salon dans lequel un certain nombre de joueurs peuvent accéder.
+ * Les joueurs sont automatiquement ajoutés aux salons qui ont de la place, on en créer de nouveaux si y'a pas assez de place.
+ *
+ * attributs:
+ * - uid: un identifiant unique rien que pour elle.
+ * - usersIds: les identifiants uniques des utilisateurs présents dedans.
+ */
 class Room {
   constructor () {
     this.uid = uid()
     this.userIds = []
   }
 
+  /**
+   * addUser(): pour ajouter un utilisateur dans la room.
+   * @param {string} userId : l'id de l'utilisateur
+   */
   addUser (userId) {
     this.userIds.push(userId)
   }
 
+  /**
+   * deleteUser(): pour supprimer un utilisateur de la room.
+   * @param {string} userId : l'id de l'utilisateur
+   * @returns {string} : l'id de l'utilisateur
+   */
   deleteUser (userId) {
     this.userIds = this.userIds.filter(deletedUserId => {
       return userId !== deletedUserId
@@ -36,11 +67,25 @@ class Room {
     return userId
   }
 
+  /**
+   * free(): pour savoir si y'a de la place ici.
+   */
   get free () {
-    return this.userIds.length <= 4
+    return this.userIds.length < gameConsts.MAX_ROOM_CAPACITY
   }
 }
 
+/**
+ * Les utilisateus, bientôt des joueurs !
+ * Cette classe gère tout ce qu'est un utilisateur.
+ *
+ * attributs:
+ * - pseudo: le pseudo de l'utilisateur.
+ * - socket: la socket de l'utilisateur pour communiquer avec lui.
+ * - state: l'état de l'utilisateur sur le serveur de jeu.
+ * - uid: un identifiant unique pour l'utilisateur.
+ * - roomId: l'identifiant de la room à laquelle appartient l'utilisateur.
+ */
 class User {
   constructor (pseudo) {
     this.pseudo = pseudo
@@ -51,11 +96,24 @@ class User {
     this.roomId = null
   }
 
+  /**
+   * setRoom(): pour affecter une nouvelle room à cet utilisateur.
+   * @param {string} roomId : l'id de la room
+   */
   setRoom (roomId) {
     this.roomId = roomId
   }
 }
 
+/**
+ * ça c'est la classe qui gère tout le serveur de jeu.
+ *
+ * attributs:
+ * - serverEvent: une classe d'événements pour accéder aux événements du serveur en dehors.
+ * - serverEvents: Une liste des différents événements du serveur.
+ * - rooms: les rooms du serveur.
+ * - users: les utilisateurs connectés au serveur.
+ */
 class GameServer {
   constructor () {
     this.serverEvent = serverEvent
@@ -65,18 +123,30 @@ class GameServer {
     this.users = []
   }
 
+  /**
+   * createRoom(): permet de créer une nouvelle room sur le serveur.
+   * @returns {Room} la room créee
+   */
   createRoom () {
     const room = new Room()
     this.rooms.push(room)
     return room
   }
 
+  /**
+   * freeRoom(): permet de récupérer une room libre sur le serveur.
+   */
   get freeRoom () {
     return this.rooms.find(room => {
       return room.free
     })
   }
 
+  /**
+   * createUser(): permet de créer un nouvel utilisateur sur le serveur.
+   * @param {string} pseudo : le pseudo de l'utilisateur
+   * @param {*} socket : le socket pour communiquer avec l'utilisateur.
+   */
   createUser (pseudo, socket) {
     const user = new User(pseudo)
     this.users.push(user)
@@ -86,9 +156,24 @@ class GameServer {
     })
   }
 
+  /**
+   * canUserConnect(): permet de savoir si un utilisateur avec un uid enregistré dans son navigateur peut se connecter (déjà en train de jouer ?)
+   * @param {string} userId : l'id de l'utilisateur.
+   * @returns {bool} si l'utilisateur peut se connecter ou non.
+   */
+  canUserConnect (userId) {
+    const user = this.getUserByUid(userId)
+    return !user || user.state === userStates.DISCONNECTED
+  }
+
+  /**
+   * deleteUser(): permet de supprimer un utilisateur du serveur.
+   * @param {*} userId : l'id de l'utilisateur.
+   * @returns l'utilisateur supprimé
+   */
   deleteUser (userId) {
     const deletedUser = this.getUserByUid(userId)
-    if (!deletedUser) return
+    if (!deletedUser) return null
 
     this.users = this.users.filter(user => {
       return deletedUser.uid !== user.uid
@@ -97,12 +182,22 @@ class GameServer {
     return deletedUser
   }
 
+  /**
+   * getRoomByUid(): permet de récupérer une room avec son uid.
+   * @param {string} uid : l'uid de la room
+   * @returns {Room} : la room
+   */
   getRoomByUid (uid) {
     return this.rooms.find(room => {
       return room.uid === uid
     })
   }
 
+  /**
+   * getUserByUid(): permet de récupérer un utilisateur avec son uid.
+   * @param {string} uid : l'uid de l'utilisateur
+   * @returns {User} l'utilisateur
+   */
   getUserByUid (uid) {
     return this.users.find(user => {
       return user.uid === uid
@@ -139,6 +234,7 @@ serverEvent.on(serverEvents.PLAYER_READY, ready => {
 
   serverEvent.emit(serverEvents.PLAYER_JOINED, ({
     userId: ready.userId,
+    userPseudo: user.pseudo,
     roomId: room.uid
   }))
 })
@@ -169,6 +265,7 @@ serverEvent.on(serverEvents.PLAYER_JOINED, player => {
     if (user.uid === inRoomUser.uid) continue
     user.socket.emit(serverEvents.PLAYER_JOINED, {
       userId: inRoomUser.uid,
+      userPseudo: inRoomUser.pseudo,
       roomId: inRoomUser.roomId
     })
   }
