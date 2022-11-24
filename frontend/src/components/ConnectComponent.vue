@@ -21,7 +21,7 @@ export default {
   },
   data () {
     return {
-      socket: io(`${import.meta.env.VITE_SOCKET_HOST || window.location.hostname}:${import.meta.env.VITE_SOCKET_PORT}`),
+      socket: io(`${import.meta.env.VITE_SOCKET_HOST || window.location.hostname}:${import.meta.env.VITE_SOCKET_PORT || window.location.port}`),
       pseudo: null
     }
   },
