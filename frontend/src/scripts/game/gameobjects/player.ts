@@ -74,17 +74,21 @@ class Player extends GameObject{
         return this.uid;
     }
     
-    public getSpritePosition()
+    public getSpritePosition(dimentions:{width:number, height:number})
     {
         return {
-            x:this.object.x,
-            y:this.object.y
+            x:this.object.x/dimentions.width,
+            y:this.object.y/dimentions.height
         }
     }
 
     public getPosition()
     {
         return this.position;
+    }
+    
+    public destroy(): void {
+        this.object.destroy();
     }
 }
 

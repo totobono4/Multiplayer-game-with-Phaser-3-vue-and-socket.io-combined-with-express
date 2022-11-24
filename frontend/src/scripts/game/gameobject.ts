@@ -23,6 +23,8 @@ abstract class GameObject{
     {
         return this.object;
     }
+
+    public abstract destroy():void;
 }
 
 export default GameObject;

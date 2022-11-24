@@ -9,6 +9,10 @@ class Platform extends GameObject{
         this.object.scaleY = height;
         this.object.refreshBody();
     }
+    
+    public destroy(): void {
+        this.object.destroy();
+    }
 }
 
 export default Platform;

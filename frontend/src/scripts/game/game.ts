@@ -2,6 +2,7 @@ import Phaser from "phaser"
 import EventManager from "./eventmanager";
 import { EventType } from "./events/gameeventbase";
 import { PlayerJoinedEvent } from "./events/playerjoinedevent";
+import { PlayerLeftEvent } from "./events/playerleftevent";
 import { PlayerStateRecievedEvent } from "./events/playerstaterecieved";
 import type Level from "./level";
 import { PacketManager } from "./packetmanager";
@@ -31,6 +32,9 @@ class Game{
 
         this.pmanager.on(PacketChannel.PLAYER_STATE, data=>{
             return new PlayerStateRecievedEvent(data.userId, data.data)
+        })
+        this.pmanager.on(PacketChannel.PLAYER_LEFT, data=>{
+            return new PlayerLeftEvent(data.userId, data.data)
         })
         this.pmanager.on(PacketChannel.PLAYER_READY_RECIEVE, data=>{
             if(data.roomId != localStorage.getItem("roomId")) return null;
