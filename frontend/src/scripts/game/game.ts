@@ -2,13 +2,12 @@ import Phaser from "phaser"
 import EventManager from "./eventmanager";
 import { EventType } from "./events/gameeventbase";
 import { PlayerJoinedEvent } from "./events/playerjoinedevent";
-import { PlayerStateRecievedEvent } from "./events/PlayerStateRecieved";
+import { PlayerStateRecievedEvent } from "./events/playerstaterecieved";
 import type Level from "./level";
 import { PacketManager } from "./packetmanager";
 import { PacketChannel } from "./packets/packet";
-import PlayerPositionPacket from "./packets/PlayerPositionPacket";
+import PlayerPositionPacket from "./packets/playerpositionpacket";
 import PlayerReadyPacket from "./packets/playerreadypacket";
-import process from "process";
 
 class Game{
     private config:any;
@@ -24,7 +23,7 @@ class Game{
             scenes:[]
         };
         this.currentLevel = null;
-        this.pmanager = new PacketManager(`${process.env.host}:${process.env.port}`);
+        this.pmanager = new PacketManager(`${import.meta.env.VITE_SOCKET_HOST || window.location.host}:${import.meta.env.VITE_SOCKET_PORT}`);
 
         EventManager.getInstance().on(EventType.PLAYER_STATE_READY, (data)=>{
             this.pmanager.send(PacketChannel.PLAYER_STATE, new PlayerPositionPacket(data.sender, data.data))
@@ -65,7 +64,7 @@ class Game{
 
     public start()
     {
-        let uid:string = (localStorage.getItem("uid") ?? "");
+        let uid:string = localStorage.getItem("uid") || "";
         if(uid == "") throw "user not connected";
         this.pmanager.send(PacketChannel.PLAYER_READY_SEND, new PlayerReadyPacket(uid))
         new Phaser.Game(this.config);

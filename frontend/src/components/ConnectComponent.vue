@@ -13,7 +13,6 @@ import io from 'socket.io-client'
 
 export default {
   created () {
-    console.log()
     this.socket.on('connected', function (msg) {
       localStorage.setItem('uid', msg.uid)
       window.location.replace('/play')
