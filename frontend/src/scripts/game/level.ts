@@ -1,6 +1,5 @@
-import Collectible from "./collectible";
 import GameConstants from "./constants";
-import GameObject from "./gameobject";
+import type GameObject from "./gameobject";
 import Player from "./player";
 import Phaser from "phaser"
 import EventManager from "./eventmanager";
@@ -9,7 +8,7 @@ import { EventType } from "./events/gameeventbase";
 abstract class Level extends Phaser.Scene{
     
     protected platforms:any[]
-    private player:Player;
+    private player:Player|undefined;
     private otherPlayers:{[key:string]:Player};
     private objects:GameObject[];
     private lastUpdateDate:number;
@@ -131,7 +130,7 @@ abstract class Level extends Phaser.Scene{
             this.otherPlayers[e.sender].phaserObject().body.setVelocityY(e.data.velocity.y)
         })
         EventManager.getInstance().on(EventType.PLAYER_JOINED, (data)=>{
-            if(data.sender in this.otherPlayers || data.sender == this.player.getUid())
+            if(data.sender in this.otherPlayers || data.sender == this.player?.getUid()) return;
             this.otherPlayers[data.sender] = new Player(this, data.sender, data.data.transformist, 0);
             this.objects.push(this.otherPlayers[data.sender]);
             this.setPlatformColliders(this.otherPlayers[data.sender]);
