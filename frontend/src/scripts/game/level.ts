@@ -9,7 +9,7 @@ import type Platform from "./gameobjects/platform";
 abstract class Level extends Phaser.Scene{
     
     protected platforms:Platform[]
-    private player:Player|undefined;
+    protected player:Player|undefined;
     private otherPlayers:{[key:string]:Player};
     private objects:GameObject[];
     private lastUpdateDate:number;
@@ -161,6 +161,9 @@ abstract class Level extends Phaser.Scene{
         this.player = new Player(this, uid, roomId);
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
+        let spawnPoint = this.getSpawnPoint();
+        this.player.setSpawnPoint(spawnPoint.x, spawnPoint.y/100*this.dims.height);
+        this.player.respawn();
     }
 
     public preload()
@@ -179,6 +182,12 @@ abstract class Level extends Phaser.Scene{
         bg.scaleY = scaleY*2;
     }
 
+    public getDimentions()
+    {
+        return this.dims;
+    }
+
+    protected abstract getSpawnPoint():{x:number, y:number};
     protected onUpdate(timeElapsed:number){}
     protected abstract loadAssets():void;
     protected abstract create():void;

@@ -9,16 +9,18 @@ class Player extends GameObject{
     private isPlatformTransformist:boolean;
     private allowedToMove:boolean;
     private roomId:string;
+    private spawnPoint:{x:number, y:number};
     
     public constructor(context:any, uid:string, roomId:string, platformTransformist:boolean|null = null, weight:number=60)
     {
         super(true);
+        this.spawnPoint={x:0, y:0};
         this.roomId=roomId;
         this.uid=uid;
         this.isPlatformTransformist = platformTransformist ?? Math.random()<0.5;
         this.position = new Observable<{x:number, y:number}>({x:0, y:0});
         this.weight = weight;
-        let player = context.physics.add.sprite(100, 450, 'dude');
+        let player = context.physics.add.sprite(0, 0, 'dude');
         this.allowedToMove = true;
 
         player.setBounce(constants.PLAYER_BOUNCE, 0);
@@ -47,6 +49,17 @@ class Player extends GameObject{
             frameRate: 10,
             repeat: -1
         });
+    }
+
+    public setSpawnPoint(x:number, y:number)
+    {
+        this.spawnPoint = {x, y};
+    }
+
+    public respawn()
+    {
+        this.object.x = this.spawnPoint.x
+        this.object.y = this.spawnPoint.y
     }
 
     public getRoomId()

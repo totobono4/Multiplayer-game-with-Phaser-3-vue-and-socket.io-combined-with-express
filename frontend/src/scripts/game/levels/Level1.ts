@@ -27,7 +27,11 @@ class Level1 extends Level{
     {        
         this.setBackground("sky")
 
-        this.addPlatform(new Platform(this, 0, this.dims.height-30, 5, 2));
+        this.addPlatform(new Platform(this, 0, 90, 5, 2));
+    }
+
+    protected getSpawnPoint(): { x: number; y: number; } {
+        return {x:10, y:80}
     }
 }
 

@@ -34,19 +34,22 @@ class Game{
             return new PlayerStateRecievedEvent(data.userId, data.data)
         })
         this.pmanager.on(PacketChannel.PLAYER_LEFT, data=>{
+            console.log("player left", data)
             return new PlayerLeftEvent(data.userId, data.data)
         })
         this.pmanager.on(PacketChannel.PLAYER_READY_RECIEVE, data=>{
-            if(data.roomId != localStorage.getItem("roomId")) return null;
             if(data.userId == localStorage.getItem("uid"))
             {
+                localStorage.setItem('roomId', data.roomId)
                 if(this.currentLevel != null && !this.currentLevel.isReady())
                 {
                     this.currentLevel.createPlayer(data.userId, data.roomId);
                     this.currentLevel.postCreate();
                 }
             }
-            return new PlayerJoinedEvent(data.userId, data);
+            else if(data.roomId == localStorage.getItem("roomId"))
+                return new PlayerJoinedEvent(data.userId, data);
+            return null;
         })
     }
 
