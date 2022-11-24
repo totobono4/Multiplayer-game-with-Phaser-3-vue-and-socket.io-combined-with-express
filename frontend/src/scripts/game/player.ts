@@ -6,14 +6,17 @@ class Player extends GameObject{
 
     private position:Observable<{x:number, y:number}>;
     private uid:string;
+    private isPlatformTransformist:boolean;
     
-    public constructor(context:any, uid:string, weight:number=60)
+    public constructor(context:any, uid:string, platformTransformist:boolean|null = null, weight:number=60)
     {
         super(true);
         this.uid=uid;
+        this.isPlatformTransformist = platformTransformist ?? Math.random()<0.5;
         this.position = new Observable<{x:number, y:number}>({x:0, y:0});
         this.weight = weight;
         let player = context.physics.add.sprite(100, 450, 'dude');
+
 
         player.setBounce(constants.PLAYER_BOUNCE, 0);
         player.setCollideWorldBounds(true);
@@ -41,6 +44,11 @@ class Player extends GameObject{
             frameRate: 10,
             repeat: -1
         });
+    }
+
+    public platformTransformist()
+    {
+        return this.isPlatformTransformist;
     }
 
     public getUid()

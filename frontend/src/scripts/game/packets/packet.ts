@@ -1,11 +1,26 @@
-enum PacketType{
-    PLAYER_JUMP="PACKET_PLAYER_JUMP",
-    PLAYER_LEFT="PACKET_PLAYER_LEFT",
-    PLAYER_POS="PACKET_PLAYER_POS"
+enum PacketChannel{
+    PLAYER_STATE="playerState",
+    PLAYER_READY_SEND="playerReady",
+    PLAYER_READY_RECIEVE="playerJoined"
 }
 
 abstract class Packet{
-    public abstract toJson():string;
+    private uid:string;
+
+    protected constructor(uid:string)
+    {
+        this.uid=uid;
+    }
+
+    public export()
+    {
+        return {
+            uid:this.uid,
+            data:this.toJson()
+        };
+    }
+
+    public abstract toJson():any;
 }
 
-export {Packet, PacketType};
+export {Packet, PacketChannel};
