@@ -23,7 +23,7 @@ class Game{
             scenes:[]
         };
         this.currentLevel = null;
-        this.pmanager = new PacketManager(`${import.meta.env.VITE_SOCKET_HOST || window.location.host}:${import.meta.env.VITE_SOCKET_PORT}`);
+        this.pmanager = new PacketManager(`${import.meta.env.VITE_SOCKET_HOST || window.location.hostname}:${import.meta.env.VITE_SOCKET_PORT}`);
 
         EventManager.getInstance().on(EventType.PLAYER_STATE_READY, (data)=>{
             this.pmanager.send(PacketChannel.PLAYER_STATE, new PlayerPositionPacket(data.sender, data.data))

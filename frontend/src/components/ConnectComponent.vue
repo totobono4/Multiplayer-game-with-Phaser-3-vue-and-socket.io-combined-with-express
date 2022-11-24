@@ -17,10 +17,11 @@ export default {
       localStorage.setItem('uid', msg.uid)
       window.location.replace('/play')
     })
+    console.log(import.meta.env.VITE_SOCKET_HOST)
   },
   data () {
     return {
-      socket: io(`${import.meta.env.VITE_SOCKET_HOST || window.location.host}:${import.meta.env.VITE_SOCKET_PORT}`),
+      socket: io(`${import.meta.env.VITE_SOCKET_HOST || window.location.hostname}:${import.meta.env.VITE_SOCKET_PORT}`),
       pseudo: null
     }
   },
