@@ -9,7 +9,7 @@ class Platform extends GameObject{
         this.object.scaleX = width*context.getDimentions().height/this.object.height;
         this.object.scaleY = height*context.getDimentions().height/this.object.height;
         this.object.setPosition(
-            this.object.x+(this.object.height*this.object.scaleX)/2,            
+            this.object.x+(this.object.width*this.object.scaleX)/2,            
             this.object.y+(this.object.height*this.object.scaleY)/2
         )
         this.object.refreshBody();

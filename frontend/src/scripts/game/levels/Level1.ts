@@ -2,20 +2,26 @@ import Level from "../level";
 
 import skySprite from "../assets/sky.png"
 import platformSprite from "../assets/square.png"
+import starSprite from "../assets/star.png";
 import dudeSprite from "../assets/dude.png"
-import Platform from "../gameobjects/platform";
 import type Player from "../gameobjects/player";
+import type Collectible from "../collectible";
+import Star from "../collectibles/star";
 
 class Level1 extends Level{
+
+    private collectibles:Collectible[]
 
     public constructor()
     {      
         super("level 1")  
+        this.collectibles = []
     }    
 
     protected loadAssets()
     {
         this.load.image('sky', skySprite);
+        this.load.image('star', starSprite);
         this.load.image('ground', platformSprite);
         this.load.spritesheet('dude', 
             dudeSprite,
@@ -35,6 +41,8 @@ class Level1 extends Level{
         this.addPlatform(blockSize*47, 0.95-blockSize*3, blockSize*2, blockSize*3);
         this.addPlatform(blockSize*55, 0.95-blockSize*4, blockSize*2, blockSize*4);
 
+        this.collectibles.push(new Star(this, blockSize*25, 0.95-blockSize*5, blockSize, blockSize))
+
     }
 
     protected onPlayerSpawned(player: Player): void {        
@@ -44,6 +52,10 @@ class Level1 extends Level{
             if(campos < this.dims.width/2) campos = this.dims.width/2;
             this.cameras.main.centerOnX(campos)
         })
+        for(let collectible of this.collectibles)
+        {
+            collectible.collectibleBy(player.phaserObject());
+        }
     }
 
     protected getSpawnPoint(): { x: number; y: number; } {

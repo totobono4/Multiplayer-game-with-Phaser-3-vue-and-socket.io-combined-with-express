@@ -112,7 +112,7 @@ abstract class Level extends Phaser.Scene{
         }
     }
     
-    public update()
+    public update(time:any, delta:any)
     {
         const scrolling = 5;
         if(!this.player) return;
@@ -124,8 +124,8 @@ abstract class Level extends Phaser.Scene{
             right:Phaser.Input.Keyboard.KeyCodes.D,
             run:Phaser.Input.Keyboard.KeyCodes.SHIFT
         }) as any;
-        const playerVelocity = GameConstants.PLAYER_VELOCITY*(cursors.run.isDown ? GameConstants.PLAYER_RUN_FACTOR : 1)
-        const playerJump = GameConstants.PLAYER_JUMP_FORCE*this.dims.height;
+        const playerVelocity = GameConstants.PLAYER_VELOCITY*(cursors.run.isDown ? GameConstants.PLAYER_RUN_FACTOR : 1)*delta
+        const playerJump = GameConstants.PLAYER_JUMP_FORCE*this.dims.height*delta;
         if (cursors.left.isDown)
         {
             player.setVelocityX(-playerVelocity);
@@ -144,7 +144,7 @@ abstract class Level extends Phaser.Scene{
         if (cursors.up.isDown && (this.jumpCounter > 0 || this.lastPlatformTouchFrames <= GameConstants.KOYOTE_JUMP_THRESHOLD))
         {
             player.body.setVelocityY(-playerJump);
-            this.jumpCounter--;
+            this.jumpCounter-=delta;
         }
         if(cursors.up.isUp && !player.body.touching.down && this.lastPlatformTouchFrames > GameConstants.KOYOTE_JUMP_THRESHOLD)
         {
@@ -195,6 +195,7 @@ abstract class Level extends Phaser.Scene{
             this.otherPlayers[data.sender] = new Player(this, data.data.userPseudo, data.sender, data.data.roomId, data.data.transformist, 0);
             this.objects.push(this.otherPlayers[data.sender]);
             this.setPlatformColliders(this.otherPlayers[data.sender]);
+            this.onPlayerSpawned(this.otherPlayers[data.sender]);
         })
         EventManager.getInstance().on(EventType.PLAYER_LEFT, data=>{
             if(!(data.sender in this.otherPlayers) || data.sender == this.player?.getUid()) return;
