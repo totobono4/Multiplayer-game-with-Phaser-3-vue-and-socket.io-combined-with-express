@@ -83,7 +83,7 @@ abstract class Level extends Phaser.Scene{
         for(let o of this.objects)
         {
             if(o.isAffectedByGravity())
-                o.phaserObject().body.setGravityY(gravity*(o?.getWeight()??1));
+                o.phaserObject().body.setGravityY(gravity*(o?.getWeight()??1) * this.dims.height);
         }
     }
     
@@ -120,7 +120,7 @@ abstract class Level extends Phaser.Scene{
         }
         if (cursors.up.isDown && player.body.touching.down)
         {
-            player.setVelocityY(-GameConstants.PLAYER_JUMP_FORCE);
+            player.setVelocityY(-GameConstants.PLAYER_JUMP_FORCE*this.dims.height);
         }
         
         if(player.x > this.dims.width/2)

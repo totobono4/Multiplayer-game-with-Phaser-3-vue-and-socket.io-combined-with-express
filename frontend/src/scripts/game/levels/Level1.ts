@@ -42,7 +42,7 @@ class Level1 extends Level{
     }
 
     protected getSpawnPoint(): { x: number; y: number; } {
-        return {x:10, y:0.9}
+        return {x:10, y:0}
     }
 }
 
