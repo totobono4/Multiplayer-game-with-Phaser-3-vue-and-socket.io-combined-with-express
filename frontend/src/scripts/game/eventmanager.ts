@@ -1,4 +1,4 @@
-import { EventType, GameEventBase } from "./events/gameeventbase";
+import type { EventType, GameEventBase } from "./events/gameeventbase";
 
 class EventManager{
     private listeners:{[key: string]:((e:GameEventBase)=>void)[]}

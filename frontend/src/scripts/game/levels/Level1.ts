@@ -4,6 +4,7 @@ import skySprite from "../assets/sky.png"
 import platformSprite from "../assets/platform.png"
 import starSprite from "../assets/star.png"
 import dudeSprite from "../assets/dude.png"
+import Platform from "../gameobjects/platform";
 
 class Level1 extends Level{
 
@@ -15,7 +16,6 @@ class Level1 extends Level{
     protected loadAssets()
     {
         this.load.image('sky', skySprite);
-        console.log(starSprite)
         this.load.image('ground', platformSprite);
         this.load.spritesheet('dude', 
             dudeSprite,
@@ -27,10 +27,10 @@ class Level1 extends Level{
     {        
         this.add.image(400, 300, 'sky');
 
-        this.addPlatform(this.physics.add.staticSprite(400, 568, 'ground').setScale(2).refreshBody());
-        this.addPlatform(this.physics.add.staticSprite(600, 400, 'ground'));
-        this.addPlatform(this.physics.add.staticSprite(50, 250, 'ground'));
-        this.addPlatform(this.physics.add.staticSprite(750, 220, 'ground'));
+        this.addPlatform(new Platform(this, 400, 568, 2, 1));
+        this.addPlatform(new Platform(this, 600, 400, 1, 1));
+        this.addPlatform(new Platform(this, 50, 250, 1, 1));
+        this.addPlatform(new Platform(this, 750, 220, 1, 1));
     }
 }
 

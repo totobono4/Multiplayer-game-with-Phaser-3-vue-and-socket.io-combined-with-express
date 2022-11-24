@@ -1,13 +1,14 @@
 import GameConstants from "./constants";
 import type GameObject from "./gameobject";
-import Player from "./player";
+import Player from "./gameobjects/player";
 import Phaser from "phaser"
 import EventManager from "./eventmanager";
 import { EventType } from "./events/gameeventbase";
+import type Platform from "./gameobjects/platform";
 
 abstract class Level extends Phaser.Scene{
     
-    protected platforms:any[]
+    protected platforms:Platform[]
     private player:Player|undefined;
     private otherPlayers:{[key:string]:Player};
     private objects:GameObject[];
@@ -44,20 +45,20 @@ abstract class Level extends Phaser.Scene{
         }
         else
         {
-            for(let group of this.platforms)
+            for(let platform of this.platforms)
             {
-                this.physics.add.collider(o.phaserObject(), group);
+                this.physics.add.collider(o.phaserObject(), platform.phaserObject());
             }
         }
     }
     
-    protected addPlatform(group:any)
+    protected addPlatform(platform:Platform)
     {
-        this.platforms.push(group);
+        this.platforms.push(platform);
         for(let o of this.objects)
         {
             if(o.isAffectedByGravity())
-                this.setPlatformColliders(o, group);
+                this.setPlatformColliders(o, platform);
         }
     }
 
@@ -106,7 +107,8 @@ abstract class Level extends Phaser.Scene{
             data:{
                 pos:this.player.getSpritePosition(),
                 animationstate:this.player.phaserObject().anims.currentAnim.key,
-                velocity:this.player.phaserObject().body.velocity
+                velocity:this.player.phaserObject().body.velocity,
+                roomId:this.player.getRoomId()
             },
             sender:this.player.getUid(),
             name:EventType.PLAYER_STATE_READY
@@ -117,7 +119,7 @@ abstract class Level extends Phaser.Scene{
 
     private registerEvents()
     {
-        EventManager.getInstance().on(EventType.PLAYER_STATE_RECIEVED, (e)=>{
+        EventManager.getInstance().on(EventType.PLAYER_STATE_RECIEVED, e=>{
             if(!(e.sender in this.otherPlayers))
                 return;
             this.otherPlayers[e.sender].getPosition().set({
@@ -129,9 +131,9 @@ abstract class Level extends Phaser.Scene{
             this.otherPlayers[e.sender].phaserObject().body.setVelocityX(e.data.velocity.x)
             this.otherPlayers[e.sender].phaserObject().body.setVelocityY(e.data.velocity.y)
         })
-        EventManager.getInstance().on(EventType.PLAYER_JOINED, (data)=>{
+        EventManager.getInstance().on(EventType.PLAYER_JOINED, data=>{
             if(data.sender in this.otherPlayers || data.sender == this.player?.getUid()) return;
-            this.otherPlayers[data.sender] = new Player(this, data.sender, data.data.transformist, 0);
+            this.otherPlayers[data.sender] = new Player(this, data.sender, data.data.roomId, data.data.transformist, 0);
             this.objects.push(this.otherPlayers[data.sender]);
             this.setPlatformColliders(this.otherPlayers[data.sender]);
         })
@@ -147,9 +149,9 @@ abstract class Level extends Phaser.Scene{
         return this.player != undefined;
     }
 
-    public createPlayer(uid:string|null)
+    public createPlayer(uid:string, roomId:string)
     {
-        this.player = new Player(this, uid??"00000");
+        this.player = new Player(this, uid, roomId);
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
     }

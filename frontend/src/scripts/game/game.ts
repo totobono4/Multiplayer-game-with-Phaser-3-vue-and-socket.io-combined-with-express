@@ -25,20 +25,24 @@ class Game{
         this.currentLevel = null;
         this.pmanager = new PacketManager(`${import.meta.env.VITE_SOCKET_HOST || window.location.hostname}:${import.meta.env.VITE_SOCKET_PORT}`);
 
-        EventManager.getInstance().on(EventType.PLAYER_STATE_READY, (data)=>{
+        EventManager.getInstance().on(EventType.PLAYER_STATE_READY, data=>{
             this.pmanager.send(PacketChannel.PLAYER_STATE, new PlayerPositionPacket(data.sender, data.data))
         })
 
-        this.pmanager.on(PacketChannel.PLAYER_STATE, (data)=>{
-            return new PlayerStateRecievedEvent(data.uid, data.data)
+        this.pmanager.on(PacketChannel.PLAYER_STATE, data=>{
+            return new PlayerStateRecievedEvent(data.userId, data.data)
         })
-        this.pmanager.on(PacketChannel.PLAYER_READY_RECIEVE, (data)=>{
-            if(data.uid == localStorage.getItem("uid") && this.currentLevel != null && !this.currentLevel.isReady())
+        this.pmanager.on(PacketChannel.PLAYER_READY_RECIEVE, data=>{
+            if(data.roomId != localStorage.getItem("roomId")) return null;
+            if(data.userId == localStorage.getItem("uid"))
             {
-                this.currentLevel.createPlayer(data.uid);
-                this.currentLevel.postCreate();
+                if(this.currentLevel != null && !this.currentLevel.isReady())
+                {
+                    this.currentLevel.createPlayer(data.userId, data.roomId);
+                    this.currentLevel.postCreate();
+                }
             }
-            return new PlayerJoinedEvent(data.uid, data);
+            return new PlayerJoinedEvent(data.userId, data);
         })
     }
 
