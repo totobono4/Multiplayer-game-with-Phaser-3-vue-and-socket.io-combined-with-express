@@ -86,8 +86,15 @@ abstract class Level extends Phaser.Scene{
             right:Phaser.Input.Keyboard.KeyCodes.D}) as any;
         if (cursors.left.isDown)
         {
-            player.setVelocityX(-160);
-            player.anims.play('left', true);
+            if(player.x > player.width/2)
+            {
+                player.setVelocityX(-160);
+                player.anims.play('left', true);
+            }
+            else
+            {
+                player.setVelocityX(0);
+            }
         }
         else if (cursors.right.isDown)
         {
@@ -97,7 +104,6 @@ abstract class Level extends Phaser.Scene{
         else
         {
             player.setVelocityX(0);
-
             player.anims.play('turn');
         }
         if (cursors.up.isDown && player.body.touching.down)
