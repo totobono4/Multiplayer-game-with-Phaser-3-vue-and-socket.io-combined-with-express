@@ -19,5 +19,5 @@ docker run -it --rm --mount type=bind,source="$(pwd)"/backend,target=/back --pub
 ```docker
 docker rmi grap-form-prod
 docker build -f Dockerfile.prod -t grap-form-prod .
-docker run -it --rm --publish 3000:3000 --name grap-form-prod grap-form-prod
+docker run -it --rm --publish 80:3000 --name grap-form-prod grap-form-prod
 ```
