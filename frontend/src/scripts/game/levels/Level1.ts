@@ -2,7 +2,6 @@ import Level from "../level";
 
 import skySprite from "../assets/sky.png"
 import platformSprite from "../assets/platform.png"
-import starSprite from "../assets/star.png"
 import dudeSprite from "../assets/dude.png"
 import Platform from "../gameobjects/platform";
 
@@ -10,7 +9,7 @@ class Level1 extends Level{
 
     public constructor()
     {      
-        super("level 1")  
+        super("level 1", 0)  
     }    
 
     protected loadAssets()
@@ -25,13 +24,14 @@ class Level1 extends Level{
 
     protected create()
     {        
+        console.log(this.dims.height);
         this.setBackground("sky")
 
-        this.addPlatform(new Platform(this, 0, 90, 5, 2));
+        this.addPlatform(new Platform(this, 0, 0.95, 5, 0.001));
     }
 
     protected getSpawnPoint(): { x: number; y: number; } {
-        return {x:10, y:80}
+        return {x:10, y:0.9}
     }
 }
 

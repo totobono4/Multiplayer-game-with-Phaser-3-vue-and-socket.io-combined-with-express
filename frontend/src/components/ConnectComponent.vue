@@ -13,10 +13,12 @@ import io from 'socket.io-client'
 
 export default {
   created () {
-    this.socket.on('playerLogged', function (msg) {
+    this.socket.on('playerLogged', msg => {
       localStorage.setItem('uid', msg.userId)
-      localStorage.setItem('roomId', msg.roomId)
       window.location.replace('/play')
+    })
+    this.socket.on('errorChan', err => {
+      console.log(err.errorMsg)
     })
   },
   data () {
@@ -28,7 +30,7 @@ export default {
   methods: {
     onFormValidated () {
       if (this.$refs.form.validate()) {
-        this.socket.emit('connecting', { pseudo: this.pseudo })
+        this.socket.emit('connecting', { pseudo: this.pseudo, userId: localStorage.getItem('uid') })
       }
     }
 

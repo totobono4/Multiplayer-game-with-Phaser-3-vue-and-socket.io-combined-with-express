@@ -1,14 +1,16 @@
 import GameObject from "../gameobject";
+import type Level from "../level";
 
 class Platform extends GameObject{
-    public constructor(context:any, x:number, y:number, width:number, height:number)
+    public constructor(context:Level, x:number, y:number, width:number, height:number)
     {
         super(false);
-        console.log(context.getDimentions().height)
-        this.object = context.physics.add.staticSprite(x, y/100*context.getDimentions().height, 'ground');
+        let ny = y*context.getDimentions().height
+        this.object = context.physics.add.staticSprite(x, y*context.getDimentions().height, 'ground');
         this.object.scaleX = width;
-        this.object.scaleY = height
+        this.object.scaleY = height*context.getDimentions().height
         this.object.refreshBody();
+        console.log(this.object.y)
     }
     
     public destroy(): void {

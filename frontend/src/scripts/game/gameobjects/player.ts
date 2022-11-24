@@ -1,5 +1,6 @@
 import constants from "../constants"
 import GameObject from "../gameobject";
+import type Level from "../level";
 import Observable from "../observable";
 
 class Player extends GameObject{
@@ -10,10 +11,12 @@ class Player extends GameObject{
     private allowedToMove:boolean;
     private roomId:string;
     private spawnPoint:{x:number, y:number};
+    private pseudo:string;
     
-    public constructor(context:any, uid:string, roomId:string, platformTransformist:boolean|null = null, weight:number=60)
+    public constructor(context:Level, pseudo:string, uid:string, roomId:string, platformTransformist:boolean|null = null, weight:number=60)
     {
-        super(true);
+        super(false);
+        this.pseudo=pseudo;
         this.spawnPoint={x:0, y:0};
         this.roomId=roomId;
         this.uid=uid;
@@ -24,7 +27,11 @@ class Player extends GameObject{
         this.allowedToMove = true;
 
         player.setBounce(constants.PLAYER_BOUNCE, 0);
-        player.setCollideWorldBounds(true);
+        
+        let playerScale = 0.0015
+        player.scale=playerScale*context.getDimentions().height
+        player.refreshBody();
+
         this.object = player;
         this.position.addChangeListener((pos)=>{
             this.object.setPosition(pos.x, pos.y);
@@ -60,6 +67,10 @@ class Player extends GameObject{
     {
         this.object.x = this.spawnPoint.x
         this.object.y = this.spawnPoint.y
+    }
+
+    public getId(){
+        return this.uid;
     }
 
     public getRoomId()
