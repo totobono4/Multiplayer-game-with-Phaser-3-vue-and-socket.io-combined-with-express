@@ -1,12 +1,11 @@
-import {Packet, PacketChannel} from "./packets/packet"
+import type {Packet, PacketChannel} from "./packets/packet"
 import {io, Socket} from "socket.io-client"
-import { GameEventBase } from "./events/gameeventbase";
+import type { GameEventBase } from "./events/gameeventbase";
 import EventManager from "./eventmanager";
 
 class PacketManager{
 
     private socket:Socket;
-    private listeners:{[Key:string]:(data:string)=>void}
 
     public constructor(url:string)
     {
@@ -18,10 +17,12 @@ class PacketManager{
         this.socket.emit(channel, packet.export());
     }
 
-    public on(channel:string, callback:(data:any)=>GameEventBase)
+    public on(channel:string, callback:(data:any)=>GameEventBase|null)
     {
         this.socket.on(channel, (data)=>{
-            EventManager.getInstance().emit(callback(data))
+            let e = callback(data)
+            if(e)
+                EventManager.getInstance().emit(e)
         })
     }
 }

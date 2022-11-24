@@ -1,6 +1,6 @@
-import constants from "./constants"
-import GameObject from "./gameobject";
-import Observable from "./observable";
+import constants from "../constants"
+import GameObject from "../gameobject";
+import Observable from "../observable";
 
 class Player extends GameObject{
 
@@ -8,10 +8,12 @@ class Player extends GameObject{
     private uid:string;
     private isPlatformTransformist:boolean;
     private allowedToMove:boolean;
+    private roomId:string;
     
-    public constructor(context:any, uid:string, platformTransformist:boolean|null = null, weight:number=60)
+    public constructor(context:any, uid:string, roomId:string, platformTransformist:boolean|null = null, weight:number=60)
     {
         super(true);
+        this.roomId=roomId;
         this.uid=uid;
         this.isPlatformTransformist = platformTransformist ?? Math.random()<0.5;
         this.position = new Observable<{x:number, y:number}>({x:0, y:0});
@@ -45,6 +47,11 @@ class Player extends GameObject{
             frameRate: 10,
             repeat: -1
         });
+    }
+
+    public getRoomId()
+    {
+        return this.roomId;
     }
 
     public platformTransformist()

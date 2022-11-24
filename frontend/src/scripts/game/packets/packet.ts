@@ -15,7 +15,7 @@ abstract class Packet{
     public export()
     {
         return {
-            uid:this.uid,
+            userId:this.uid,
             data:this.toJson()
         };
     }
