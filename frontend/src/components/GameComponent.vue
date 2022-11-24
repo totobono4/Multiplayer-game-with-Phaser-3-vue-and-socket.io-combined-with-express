@@ -12,7 +12,7 @@ onMounted(() => {
   try {
     new Game('100%', '100%')
       .attachTo(containerId)
-      .registerLevel(Level1, true)
+      .registerLevel(new Level1(), true)
       .start()
   } catch {
     window.location.replace('/login')
