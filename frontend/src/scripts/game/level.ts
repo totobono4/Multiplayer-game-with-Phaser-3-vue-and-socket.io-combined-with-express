@@ -57,6 +57,7 @@ abstract class Level extends Phaser.Scene{
     protected addPlatform(platform:Platform)
     {
         this.platforms.push(platform);
+        this.objects.push(platform);
         for(let o of this.objects)
         {
             if(o.isAffectedByGravity())
@@ -76,6 +77,7 @@ abstract class Level extends Phaser.Scene{
     
     public update()
     {
+        const scrolling = 5;
         if(!this.player) return;
         let player = this.player.phaserObject();
         let cursors = this.input.keyboard.addKeys(
@@ -85,13 +87,11 @@ abstract class Level extends Phaser.Scene{
         if (cursors.left.isDown)
         {
             player.setVelocityX(-160);
-
             player.anims.play('left', true);
         }
         else if (cursors.right.isDown)
         {
             player.setVelocityX(160);
-
             player.anims.play('right', true);
         }
         else
@@ -104,6 +104,9 @@ abstract class Level extends Phaser.Scene{
         {
             player.setVelocityY(-GameConstants.PLAYER_JUMP_FORCE);
         }
+        
+        if(player.x > this.dims.width/2)
+            this.cameras.main.centerOnX(player.x)
 
         EventManager.getInstance().emit({
             data:{
@@ -135,13 +138,18 @@ abstract class Level extends Phaser.Scene{
         })
         EventManager.getInstance().on(EventType.PLAYER_JOINED, data=>{
             if(data.sender in this.otherPlayers || data.sender == this.player?.getUid()) return;
-            this.otherPlayers[data.sender] = new Player(this, data.sender, data.data.roomId, data.data.transformist, 0);
+            this.otherPlayers[data.sender] = new Player(this, data.data.userPseudo, data.sender, data.data.roomId, data.data.transformist, 0);
             this.objects.push(this.otherPlayers[data.sender]);
             this.setPlatformColliders(this.otherPlayers[data.sender]);
         })
         EventManager.getInstance().on(EventType.PLAYER_LEFT, data=>{
             if(!(data.sender in this.otherPlayers) || data.sender == this.player?.getUid()) return;
             this.otherPlayers[data.sender].destroy();
+            this.objects = this.objects.filter((p)=>{
+                if(p instanceof Player)
+                    return p.getId() != data.sender
+                return true
+            })
             delete this.otherPlayers[data.sender];           
         })
     }
@@ -156,13 +164,13 @@ abstract class Level extends Phaser.Scene{
         return this.player != undefined;
     }
 
-    public createPlayer(uid:string, roomId:string)
+    public createPlayer(pseudo:string, uid:string, roomId:string)
     {
-        this.player = new Player(this, uid, roomId);
+        this.player = new Player(this, pseudo, uid, roomId);
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
         let spawnPoint = this.getSpawnPoint();
-        this.player.setSpawnPoint(spawnPoint.x, spawnPoint.y/100*this.dims.height);
+        this.player.setSpawnPoint(spawnPoint.x, spawnPoint.y*this.getDimentions().height);
         this.player.respawn();
     }
 
@@ -180,6 +188,7 @@ abstract class Level extends Phaser.Scene{
         let scaleY = this.dims.height / bg.height
         bg.scaleX = scaleX*2;
         bg.scaleY = scaleY*2;
+        bg.setScrollFactor(0)
     }
 
     public getDimentions()
