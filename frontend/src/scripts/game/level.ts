@@ -124,7 +124,7 @@ abstract class Level extends Phaser.Scene{
             right:Phaser.Input.Keyboard.KeyCodes.D,
             run:Phaser.Input.Keyboard.KeyCodes.SHIFT
         }) as any;
-        const playerVelocity = GameConstants.PLAYER_VELOCITY*(cursors.run.isDown ? GameConstants.PLAYER_RUN_FACTOR : 1)*delta
+        const playerVelocity = GameConstants.PLAYER_VELOCITY*(cursors.run.isDown ? GameConstants.PLAYER_RUN_FACTOR : 1)*delta*this.dims.height
         const playerJump = GameConstants.PLAYER_JUMP_FORCE*this.dims.height*delta;
         if (cursors.left.isDown)
         {
