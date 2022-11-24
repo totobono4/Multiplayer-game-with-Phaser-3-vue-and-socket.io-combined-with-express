@@ -1,6 +1,7 @@
 import Level from "../level";
 
 import skySprite from "../assets/sky.png"
+import tutorialSprite from "../assets/tutorial-keys/Tutorial.png"
 import platformSprite from "../assets/square.png"
 import dudeSprite from "../assets/dude.png"
 import Platform from "../gameobjects/platform";
@@ -16,6 +17,7 @@ class Level1 extends Level{
     protected loadAssets()
     {
         this.load.image('sky', skySprite);
+        this.load.image('tutorial', tutorialSprite);
         this.load.image('ground', platformSprite);
         this.load.spritesheet('dude', 
             dudeSprite,
@@ -26,6 +28,15 @@ class Level1 extends Level{
     protected create()
     {        
         this.setBackground("sky")
+
+        const tutorial = this.add.image(0.4*this.getDimentions().height, 0.4*this.getDimentions().height, 'tutorial');
+        const tutorialSize = .4;
+        tutorial.scaleX = tutorialSize*this.getDimentions().height/tutorial.height;
+        tutorial.scaleY = tutorialSize*this.getDimentions().height/tutorial.height;
+        tutorial.setPosition(
+            tutorial.x+(tutorial.width*tutorial.scaleX)/2,            
+            tutorial.y+(tutorial.height*tutorial.scaleY)/2
+        )
 
         const blockSize = 0.05
 
