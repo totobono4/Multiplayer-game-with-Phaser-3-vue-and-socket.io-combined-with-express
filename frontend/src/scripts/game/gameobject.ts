@@ -6,6 +6,7 @@ abstract class GameObject{
     protected constructor(affectedByGravity:boolean=false)
     {
         this.gravityAffected = affectedByGravity;
+        this.weight = 0;
     }
 
     public isAffectedByGravity()

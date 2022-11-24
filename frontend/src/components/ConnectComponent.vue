@@ -13,11 +13,11 @@ import io from 'socket.io-client'
 
 export default {
   created () {
-    this.socket.on('connected', function (msg) {
-      localStorage.setItem('uid', msg.uid)
+    this.socket.on('playerLogged', function (msg) {
+      localStorage.setItem('uid', msg.userId)
+      localStorage.setItem('roomId', msg.roomId)
       window.location.replace('/play')
     })
-    console.log(import.meta.env.VITE_SOCKET_HOST)
   },
   data () {
     return {

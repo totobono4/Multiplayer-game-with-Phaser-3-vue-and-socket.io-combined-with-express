@@ -18,21 +18,21 @@ const io = require('socket.io')(server, {
 const gameServer = require('./game')
 
 io.on('connection', (socket) => {
-  console.log('a user connected')
+  console.log('user connected')
   socket.on('disconnect', () => {
     console.log('user disconnected')
   })
 
-  socket.on('connecting', (connecting) => {
+  socket.on('connecting', connecting => {
     const pseudo = connecting.pseudo
     if (typeof (pseudo) !== 'string') return
-    socket.emit('connected', {
-      uid: gameServer.createUser(pseudo, socket)
-    })
+    gameServer.createUser(pseudo, socket)
   })
 
-  socket.on(gameServer.serverEvents.PLAYER_READY, (ready) => {
-    const user = gameServer.getUserByUid(ready.uid)
+  socket.on(gameServer.serverEvents.PLAYER_READY, ready => {
+    // console.log(`Socket event ${gameServer.serverEvents.PLAYER_READY}`)
+
+    const user = gameServer.getUserByUid(ready.userId)
     if (!user) return
     user.socket = socket
     gameServer.serverEvent.emit(gameServer.serverEvents.PLAYER_READY, ready)
