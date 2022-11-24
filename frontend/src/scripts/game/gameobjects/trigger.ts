@@ -1,29 +1,39 @@
+import Game from "../game";
 import GameObject from "../gameobject";
 import type Level from "../level";
 import type Player from "./player";
 
 export class Trigger extends GameObject{
 
-    private playerGroup:any;
-    private overlap:any;
+    private listeners:{object:any, cb:()=>void}[]
+    private context:Level;
 
     public constructor(context:Level, x:number, y:number, width:number, height:number)
     {
         super(false);
-        this.playerGroup = context.add.group();
-        this.overlap = context.add.zone(x, y).setSize(width, height*context.getDimentions().height)
-        
-        this.object = context.physics.add.overlap(this.playerGroup, this.overlap, this.onOverlap)
+        this.listeners = [];
+        console.log("coucou")
+        this.object = context.add.zone(x, y*context.getDimentions().height, width, height*context.getDimentions().height)
+        context.physics.world.enable(this.object, 1);
+        this.context=context;
     }
 
-    private onOverlap(o1:any, o2:any)
+    private onOverlap(player:any, _:any)
     {
-
+        let object = this.listeners.filter((o)=>{
+            return o.object == player;
+        })[0]
+        if(object)
+        {
+            return object.cb();
+        }
     }
 
-    public setOverlapWithPlayer(player:Player)
+    public setOverlapWithPlayer(player:Player, cb:()=>void)
     {
-        this.playerGroup.add(player.phaserObject());
+        this.context.physics.add.overlap(player.phaserObject(), this.object, this.onOverlap.bind(this))
+        this.listeners.push({object:player.phaserObject(), cb})
+        return this;
     }
 
     public destroy(): void {

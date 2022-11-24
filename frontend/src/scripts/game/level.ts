@@ -5,6 +5,8 @@ import Phaser from "phaser"
 import EventManager from "./eventmanager";
 import { EventType } from "./events/gameeventbase";
 import type Platform from "./gameobjects/platform";
+import { Trigger } from "./gameobjects/trigger";
+import Game from "./game";
 
 abstract class Level extends Phaser.Scene{
     
@@ -24,7 +26,7 @@ abstract class Level extends Phaser.Scene{
             {
                 default: 'arcade',
                 arcade: {
-                    debug: false,
+                    debug: Game.DEBUG_MODE,
                     gravity:
                     {
                         y: gravity
@@ -62,6 +64,16 @@ abstract class Level extends Phaser.Scene{
         {
             if(o.isAffectedByGravity())
                 this.setPlatformColliders(o, platform);
+        }
+    }
+
+    protected addTrigger(x:number, y:number, width:number, height:number, cb:()=>void)
+    {
+        if(this.player)
+        {
+            let trigger = new Trigger(this, x, y, width, height)
+            .setOverlapWithPlayer(this.player, cb);
+            this.objects.push(trigger);
         }
     }
 
@@ -178,6 +190,7 @@ abstract class Level extends Phaser.Scene{
         let spawnPoint = this.getSpawnPoint();
         this.player.setSpawnPoint(spawnPoint.x, spawnPoint.y*this.getDimentions().height);
         this.player.respawn();
+        this.onPlayerSpawned(this.player);
     }
 
     public preload()
@@ -206,6 +219,7 @@ abstract class Level extends Phaser.Scene{
     protected onUpdate(timeElapsed:number){}
     protected abstract loadAssets():void;
     protected abstract create():void;
+    protected onPlayerSpawned(player:Player){}
 }
 
 export default Level;

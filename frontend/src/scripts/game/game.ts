@@ -15,12 +15,21 @@ class Game{
     private pmanager:PacketManager;
     private currentLevel:Level|null;
 
+    public static readonly DEBUG_MODE = true;
+
     public constructor(width:number|string, height:number|string)
     {
         this.config = {
             type: Phaser.AUTO,
             width: width,
             height: height,
+            physics:
+            {
+                default: 'arcade',
+                arcade: {
+                    debug: Game.DEBUG_MODE,
+                }
+            },
             scenes:[]
         };
         this.currentLevel = null;
