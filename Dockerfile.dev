@@ -4,7 +4,7 @@ WORKDIR /build
 
 COPY frontend/public ./public
 COPY frontend/src ./src
-COPY frontend/.env.development.local .
+COPY frontend/.env.production.local .
 COPY frontend/env.d.ts .
 COPY frontend/index.html .
 COPY frontend/package.json .
