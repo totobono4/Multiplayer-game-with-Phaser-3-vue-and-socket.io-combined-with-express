@@ -7,6 +7,7 @@ class Player extends GameObject{
     private position:Observable<{x:number, y:number}>;
     private uid:string;
     private isPlatformTransformist:boolean;
+    private allowedToMove:boolean;
     
     public constructor(context:any, uid:string, platformTransformist:boolean|null = null, weight:number=60)
     {
@@ -16,7 +17,7 @@ class Player extends GameObject{
         this.position = new Observable<{x:number, y:number}>({x:0, y:0});
         this.weight = weight;
         let player = context.physics.add.sprite(100, 450, 'dude');
-
+        this.allowedToMove = true;
 
         player.setBounce(constants.PLAYER_BOUNCE, 0);
         player.setCollideWorldBounds(true);
@@ -49,6 +50,16 @@ class Player extends GameObject{
     public platformTransformist()
     {
         return this.isPlatformTransformist;
+    }
+
+    public isAllowedToMove()
+    {
+        return this.allowedToMove;
+    }
+
+    public setMobility(value:boolean)
+    {
+        this.allowedToMove = value;
     }
 
     public getUid()
