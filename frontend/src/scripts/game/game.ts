@@ -6,7 +6,7 @@ import { PlayerStateRecievedEvent } from "./events/playerstaterecieved";
 import type Level from "./level";
 import { PacketManager } from "./packetmanager";
 import { PacketChannel } from "./packets/packet";
-import PlayerPositionPacket from "./packets/playerpositionpackets";
+import PlayerPositionPacket from "./packets/playerpositionpacket";
 import PlayerReadyPacket from "./packets/playerreadypacket";
 
 class Game{
