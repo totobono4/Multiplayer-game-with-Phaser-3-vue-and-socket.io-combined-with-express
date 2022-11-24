@@ -13,7 +13,6 @@ abstract class Level extends Phaser.Scene{
     private otherPlayers:{[key:string]:Player};
     private objects:GameObject[];
     private lastUpdateDate:number;
-    private ready:boolean;
 
     protected constructor(name:string, gravity:number=GameConstants.BASE_GRAVITY)
     {
@@ -32,7 +31,6 @@ abstract class Level extends Phaser.Scene{
                 }
             },
         });
-        this.ready = false;
         this.platforms = []
         this.objects = []
         this.otherPlayers = {}
@@ -76,7 +74,7 @@ abstract class Level extends Phaser.Scene{
     
     public update()
     {
-        if(!this.ready) return;
+        if(!this.player) return;
         let player = this.player.phaserObject();
         let cursors = this.input.keyboard.addKeys(
             {up:Phaser.Input.Keyboard.KeyCodes.SPACE,
@@ -143,12 +141,11 @@ abstract class Level extends Phaser.Scene{
     public postCreate():void{    
         this.registerEvents();
         this.initGravity();
-        this.ready = true;
     }
 
-    public isReady()
+    public isReady():boolean
     {
-        return this.ready;
+        return this.player != undefined;
     }
 
     public createPlayer(uid:string|null)
