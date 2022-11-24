@@ -4,7 +4,7 @@ import Player from "./gameobjects/player";
 import Phaser from "phaser"
 import EventManager from "./eventmanager";
 import { EventType } from "./events/gameeventbase";
-import type Platform from "./gameobjects/platform";
+import Platform from "./gameobjects/platform";
 import { Trigger } from "./gameobjects/trigger";
 import Game from "./game";
 
@@ -16,6 +16,8 @@ abstract class Level extends Phaser.Scene{
     private objects:GameObject[];
     private lastUpdateDate:number;
     protected dims:{width:number, height:number};
+    private jumpCounter:number;
+    private lastPlatformTouchFrames:number;
 
     protected constructor(name:string, gravity:number=GameConstants.BASE_GRAVITY)
     {
@@ -34,6 +36,8 @@ abstract class Level extends Phaser.Scene{
                 }
             },
         });
+        this.lastPlatformTouchFrames = 0;
+        this.jumpCounter = GameConstants.MAX_JUMPING_FRAMES;
         this.dims = {width:0, height:0};
         this.platforms = []
         this.objects = []
@@ -56,14 +60,35 @@ abstract class Level extends Phaser.Scene{
         }
     }
     
-    protected addPlatform(platform:Platform)
+    protected addPlatform(x:number, y:number, width:number, height:number, repeat:{x?:number|undefined, y?:number|undefined}|undefined = undefined)
     {
-        this.platforms.push(platform);
-        this.objects.push(platform);
-        for(let o of this.objects)
+        if(repeat)
         {
-            if(o.isAffectedByGravity())
-                this.setPlatformColliders(o, platform);
+            for(let xl = 0; xl<(repeat.x||1); xl++)
+            {
+                for(let yl = 0; yl<(repeat.y||1); yl++)
+                {
+                    let platform = new Platform(this, x+xl*width, y+yl*height, width, height);                    
+                    this.platforms.push(platform);
+                    this.objects.push(platform);
+                    for(let o of this.objects)
+                    {
+                        if(o.isAffectedByGravity())
+                            this.setPlatformColliders(o, platform);
+                    }
+                }
+            }
+        }
+        else
+        {
+            let platform = new Platform(this, x, y, width, height);  
+            this.platforms.push(platform);
+            this.objects.push(platform);
+            for(let o of this.objects)
+            {
+                if(o.isAffectedByGravity())
+                    this.setPlatformColliders(o, platform);
+            }
         }
     }
 
@@ -91,26 +116,24 @@ abstract class Level extends Phaser.Scene{
     {
         const scrolling = 5;
         if(!this.player) return;
-        let player = this.player.phaserObject();
-        let cursors = this.input.keyboard.addKeys(
-            {up:Phaser.Input.Keyboard.KeyCodes.SPACE,
+        const player = this.player.phaserObject();
+        const cursors = this.input.keyboard.addKeys(
+        {
+            up:Phaser.Input.Keyboard.KeyCodes.SPACE,
             left:Phaser.Input.Keyboard.KeyCodes.Q,
-            right:Phaser.Input.Keyboard.KeyCodes.D}) as any;
+            right:Phaser.Input.Keyboard.KeyCodes.D,
+            run:Phaser.Input.Keyboard.KeyCodes.SHIFT
+        }) as any;
+        const playerVelocity = GameConstants.PLAYER_VELOCITY*(cursors.run.isDown ? GameConstants.PLAYER_RUN_FACTOR : 1)
+        const playerJump = GameConstants.PLAYER_JUMP_FORCE*this.dims.height;
         if (cursors.left.isDown)
         {
-            if(player.x > player.width/2)
-            {
-                player.setVelocityX(-GameConstants.PLAYER_VELOCITY);
-                player.anims.play('left', true);
-            }
-            else
-            {
-                player.setVelocityX(0);
-            }
+            player.setVelocityX(-playerVelocity);
+            player.anims.play('left', true);
         }
         else if (cursors.right.isDown)
         {
-            player.setVelocityX(GameConstants.PLAYER_VELOCITY);
+            player.setVelocityX(playerVelocity);
             player.anims.play('right', true);
         }
         else
@@ -118,9 +141,22 @@ abstract class Level extends Phaser.Scene{
             player.setVelocityX(0);
             player.anims.play('turn');
         }
-        if (cursors.up.isDown && player.body.touching.down)
+        if (cursors.up.isDown && (this.jumpCounter > 0 || this.lastPlatformTouchFrames <= GameConstants.KOYOTE_JUMP_THRESHOLD))
         {
-            player.setVelocityY(-GameConstants.PLAYER_JUMP_FORCE*this.dims.height);
+            player.body.setVelocityY(-playerJump);
+            this.jumpCounter--;
+        }
+        if(cursors.up.isUp && !player.body.touching.down && this.lastPlatformTouchFrames > GameConstants.KOYOTE_JUMP_THRESHOLD)
+        {
+            this.jumpCounter = 0;
+        }
+
+        this.lastPlatformTouchFrames += 1;
+
+        if(player.body.touching.down)
+        {
+            this.lastPlatformTouchFrames = 0;
+            this.jumpCounter = GameConstants.MAX_JUMPING_FRAMES;
         }
         
         if(player.x > this.dims.width/2)

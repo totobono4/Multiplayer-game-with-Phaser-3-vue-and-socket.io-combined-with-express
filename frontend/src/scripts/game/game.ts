@@ -15,7 +15,7 @@ class Game{
     private pmanager:PacketManager;
     private currentLevel:Level|null;
 
-    public static readonly DEBUG_MODE = true;
+    public static readonly DEBUG_MODE = import.meta.env.VITE_DEBUG_MODE || false;
 
     public constructor(width:number|string, height:number|string)
     {

@@ -27,7 +27,13 @@ class Level1 extends Level{
     {        
         this.setBackground("sky")
 
-        this.addPlatform(new Platform(this, 0, 0.95, 5, 0.1));
+        const blockSize = 0.05
+
+        this.addPlatform(0, 0.95, blockSize, blockSize, {x:57, y:1});
+        this.addPlatform(-blockSize, 0.95-blockSize*10, blockSize, blockSize*10);
+        this.addPlatform(blockSize*37, 0.95-blockSize*2, blockSize*2, blockSize*2);
+        this.addPlatform(blockSize*47, 0.95-blockSize*3, blockSize*2, blockSize*3);
+        this.addPlatform(blockSize*55, 0.95-blockSize*4, blockSize*2, blockSize*4);
 
     }
 
