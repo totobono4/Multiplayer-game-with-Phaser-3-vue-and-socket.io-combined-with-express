@@ -17,7 +17,6 @@ VITE_SOCKET_PORT=3000
 
 Example production env file `.env.production.local`
 ```c#
-VITE_SOCKET_PORT=3000
 ```
 
 ---
