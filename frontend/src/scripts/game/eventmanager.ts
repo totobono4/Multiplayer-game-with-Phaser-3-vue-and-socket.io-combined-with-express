@@ -1,4 +1,4 @@
-import { GameEventBase } from "./events/gameeventbase";
+import { EventType, GameEventBase } from "./events/gameeventbase";
 
 class EventManager{
     private listeners:{[key: string]:((e:GameEventBase)=>void)[]}
@@ -18,7 +18,7 @@ class EventManager{
         return this.instance;
     }
 
-    public on(name:string, cb:(e:GameEventBase)=>void)
+    public on(name:EventType, cb:(e:GameEventBase)=>void)
     {
         if(name in this.listeners)
         {
@@ -32,6 +32,7 @@ class EventManager{
 
     public emit(e:GameEventBase)
     {
+        if(!(e.name in this.listeners)) return;
         let promises:Promise<unknown>[] = []
         for(let l of this.listeners[e.name])
         {

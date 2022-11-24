@@ -13,21 +13,22 @@ import io from 'socket.io-client'
 
 export default {
   created () {
-    this.socket.on('uid', function (msg) {
-      localStorage.setItem('uid', msg)
+    console.log()
+    this.socket.on('connected', function (msg) {
+      localStorage.setItem('uid', msg.uid)
       window.location.replace('/play')
     })
   },
   data () {
     return {
-      socket: io('10.3.2.10:3000'),
+      socket: io(`${import.meta.env.VITE_SOCKET_HOST || window.location.host}:${import.meta.env.VITE_SOCKET_PORT}`),
       pseudo: null
     }
   },
   methods: {
     onFormValidated () {
       if (this.$refs.form.validate()) {
-        this.socket.emit('pseudo', this.pseudo)
+        this.socket.emit('connecting', { pseudo: this.pseudo })
       }
     }
 

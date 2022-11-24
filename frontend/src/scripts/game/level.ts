@@ -4,15 +4,16 @@ import GameObject from "./gameobject";
 import Player from "./player";
 import Phaser from "phaser"
 import EventManager from "./eventmanager";
-import { PacketType } from "./packets/packet";
+import { EventType } from "./events/gameeventbase";
 
 abstract class Level extends Phaser.Scene{
     
     protected platforms:any[]
     private player:Player;
-    private otherPlayer:Player;
+    private otherPlayers:{[key:string]:Player};
     private objects:GameObject[];
     private lastUpdateDate:number;
+    private ready:boolean;
 
     protected constructor(name:string, gravity:number=GameConstants.BASE_GRAVITY)
     {
@@ -31,8 +32,10 @@ abstract class Level extends Phaser.Scene{
                 }
             },
         });
+        this.ready = false;
         this.platforms = []
         this.objects = []
+        this.otherPlayers = {}
         this.lastUpdateDate = Date.now();
     }
 
@@ -73,6 +76,7 @@ abstract class Level extends Phaser.Scene{
     
     public update()
     {
+        if(!this.ready) return;
         let player = this.player.phaserObject();
         let cursors = this.input.keyboard.addKeys(
             {up:Phaser.Input.Keyboard.KeyCodes.SPACE,
@@ -108,57 +112,51 @@ abstract class Level extends Phaser.Scene{
                 velocity:this.player.phaserObject().body.velocity
             },
             sender:this.player.getUid(),
-            name:"playerMove"
+            name:EventType.PLAYER_STATE_READY
         })
         this.onUpdate(Date.now()-this.lastUpdateDate);
         this.lastUpdateDate = Date.now();
     }
 
-    protected addCollectible(collectible:Collectible)
-    {
-        collectible.load();
-        collectible.collectibleBy(this.player.phaserObject());
-        collectible.collectibleBy(this.otherPlayer.phaserObject());
-        this.objects.push(collectible);
-        if(collectible.isAffectedByGravity())
-        {
-            this.setPlatformColliders(collectible);
-        }
-    }
-
     private registerEvents()
     {
-        EventManager.getInstance().on(PacketType.PLAYER_POS, (e)=>{
-            this.otherPlayer.getPosition().set({
+        EventManager.getInstance().on(EventType.PLAYER_STATE_RECIEVED, (e)=>{
+            if(!(e.sender in this.otherPlayers))
+                return;
+            this.otherPlayers[e.sender].getPosition().set({
                 x:e.data.pos.x,
                 y:e.data.pos.y
             })
-            if(this.otherPlayer.phaserObject().anims.currentAnim?.key !== e.data.animationstate)
-                this.otherPlayer.phaserObject().anims.play(e.data.animationstate)
-            this.otherPlayer.phaserObject().body.setVelocityX(e.data.velocity.x)
-            this.otherPlayer.phaserObject().body.setVelocityY(e.data.velocity.y)
+            if(this.otherPlayers[e.sender].phaserObject().anims.currentAnim?.key !== e.data.animationstate)
+                this.otherPlayers[e.sender].phaserObject().anims.play(e.data.animationstate)
+            this.otherPlayers[e.sender].phaserObject().body.setVelocityX(e.data.velocity.x)
+            this.otherPlayers[e.sender].phaserObject().body.setVelocityY(e.data.velocity.y)
+        })
+        EventManager.getInstance().on(EventType.PLAYER_JOINED, (data)=>{
+            if(data.sender in this.otherPlayers || data.sender == this.player.getUid())
+            this.otherPlayers[data.sender] = new Player(this, data.sender, data.data.transformist, 0);
+            this.objects.push(this.otherPlayers[data.sender]);
+            this.setPlatformColliders(this.otherPlayers[data.sender]);
         })
     }
 
-    public create(): void {        
-        this.beforePlayer();
-        this.createPlayers();
-        this.afterPlayer();
+    public postCreate():void{    
         this.registerEvents();
         this.initGravity();
+        this.ready = true;
     }
 
-    protected createPlayers()
+    public isReady()
     {
-        this.player = new Player(this, localStorage.getItem("uid")??"00000");
+        return this.ready;
+    }
+
+    public createPlayer(uid:string|null)
+    {
+        this.player = new Player(this, uid??"00000");
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
-        this.otherPlayer = new Player(this, "111111", 0);
-        this.objects.push(this.otherPlayer);
-        this.setPlatformColliders(this.otherPlayer);
     }
-
-    protected onUpdate(timeElapsed:number){}
 
     public preload()
     {
@@ -166,9 +164,10 @@ abstract class Level extends Phaser.Scene{
         this.loadAssets();
     }
 
+
+    protected onUpdate(timeElapsed:number){}
     protected abstract loadAssets():void;
-    protected abstract beforePlayer():void;
-    protected abstract afterPlayer():void;
+    protected abstract create():void;
 }
 
 export default Level;

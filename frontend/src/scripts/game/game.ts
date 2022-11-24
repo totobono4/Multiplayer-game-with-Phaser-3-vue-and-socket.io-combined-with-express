@@ -1,12 +1,19 @@
 import Phaser from "phaser"
 import EventManager from "./eventmanager";
+import { EventType } from "./events/gameeventbase";
+import { PlayerJoinedEvent } from "./events/playerjoinedevent";
+import { PlayerStateRecievedEvent } from "./events/PlayerStateRecieved";
 import type Level from "./level";
 import { PacketManager } from "./packetmanager";
+import { PacketChannel } from "./packets/packet";
 import PlayerPositionPacket from "./packets/PlayerPositionPacket";
+import PlayerReadyPacket from "./packets/playerreadypacket";
+import process from "process";
 
 class Game{
     private config:any;
     private pmanager:PacketManager;
+    private currentLevel:Level|null;
 
     public constructor(width:number|string, height:number|string)
     {
@@ -16,16 +23,23 @@ class Game{
             height: height,
             scenes:[]
         };
-        this.pmanager = new PacketManager("10.3.2.10:3000");
-        EventManager.getInstance().on("playerMove", (data)=>{
-            this.pmanager.send("message", new PlayerPositionPacket(data.sender, data.data))
+        this.currentLevel = null;
+        this.pmanager = new PacketManager(`${process.env.host}:${process.env.port}`);
+
+        EventManager.getInstance().on(EventType.PLAYER_STATE_READY, (data)=>{
+            this.pmanager.send(PacketChannel.PLAYER_STATE, new PlayerPositionPacket(data.sender, data.data))
         })
-        this.pmanager.on("reponse", (data)=>{
-            return {
-                data:data.data,
-                name:data.type,
-                sender:data.uid
+
+        this.pmanager.on(PacketChannel.PLAYER_STATE, (data)=>{
+            return new PlayerStateRecievedEvent(data.uid, data.data)
+        })
+        this.pmanager.on(PacketChannel.PLAYER_READY_RECIEVE, (data)=>{
+            if(data.uid == localStorage.getItem("uid") && this.currentLevel != null && !this.currentLevel.isReady())
+            {
+                this.currentLevel.createPlayer(data.uid);
+                this.currentLevel.postCreate();
             }
+            return new PlayerJoinedEvent(data.uid, data);
         })
     }
 
@@ -43,6 +57,7 @@ class Game{
             if(first)
             {
                 this.config.scene=level
+                this.currentLevel = level;
             }
         }
         return this;
@@ -50,6 +65,9 @@ class Game{
 
     public start()
     {
+        let uid:string = (localStorage.getItem("uid") ?? "");
+        if(uid == "") throw "user not connected";
+        this.pmanager.send(PacketChannel.PLAYER_READY_SEND, new PlayerReadyPacket(uid))
         new Phaser.Game(this.config);
     }
 }
