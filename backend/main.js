@@ -34,15 +34,13 @@ io.on('connection', (socket) => {
   socket.on(gameServer.serverEvents.PLAYER_READY, ready => {
     const user = gameServer.getUserByUid(ready.userId)
     if (!user) return
-    const room = gameServer.getRoomByUid(user.roomId)
 
     user.socket = socket
     gameServer.serverEvent.emit(gameServer.serverEvents.PLAYER_READY, ready)
 
     socket.on('disconnect', () => {
       gameServer.serverEvent.emit(gameServer.serverEvents.PLAYER_LEFT, {
-        userId: user.uid,
-        roomId: room.uid
+        userId: user.uid
       })
     })
   })

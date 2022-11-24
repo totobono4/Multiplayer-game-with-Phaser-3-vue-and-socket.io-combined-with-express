@@ -28,8 +28,16 @@ class Room {
     this.userIds.push(userId)
   }
 
+  deleteUser (userId) {
+    this.userIds = this.userIds.filter(deletedUserId => {
+      return userId !== deletedUserId
+    })
+
+    return userId
+  }
+
   get free () {
-    return true
+    return this.userIds.length <= 4
   }
 }
 
@@ -73,18 +81,8 @@ class GameServer {
     const user = new User(pseudo)
     this.users.push(user)
 
-    let room = gameServer.freeRoom
-
-    if (!room) {
-      room = gameServer.createRoom()
-    }
-
-    user.setRoom(room.uid)
-    room.addUser(user.uid)
-
     socket.emit(serverEvents.PLAYER_LOGGED, {
-      userId: user.uid,
-      roomId: room.uid
+      userId: user.uid
     })
   }
 
@@ -121,18 +119,23 @@ const gameServer = new GameServer()
  * - userId: l'id du joueur qui est prêt à rejoindre la partie.
  */
 serverEvent.on(serverEvents.PLAYER_READY, ready => {
-  console.log(`Server Event ${serverEvents.PLAYER_JOINED} a user is ready to join`)
-
   const user = gameServer.getUserByUid(ready.userId)
   if (!user) return
-  const room = gameServer.getRoomByUid(user.roomId)
-  if (!room) return
 
   if (user.state !== userStates.DISCONNECTED) return
 
-  console.log(`Server Event ${serverEvents.PLAYER_READY} ${user.uid}(${user.pseudo}) in room ${room.uid}`)
+  console.log(`Server Event ${serverEvents.PLAYER_READY} ${user.uid}(${user.pseudo})`)
 
   user.state = userStates.WAITING
+
+  let room = gameServer.freeRoom
+
+  if (!room) {
+    room = gameServer.createRoom()
+  }
+
+  user.setRoom(room.uid)
+  room.addUser(user.uid)
 
   serverEvent.emit(serverEvents.PLAYER_JOINED, ({
     userId: ready.userId,
@@ -148,8 +151,6 @@ serverEvent.on(serverEvents.PLAYER_READY, ready => {
  * - roomId: la room à laquelle appartient ce joueur.
  */
 serverEvent.on(serverEvents.PLAYER_JOINED, player => {
-  console.log(`Server Event ${serverEvents.PLAYER_JOINED} a user is trying to join`)
-
   const user = gameServer.getUserByUid(player.userId)
   if (!user) return
   const room = gameServer.getRoomByUid(player.roomId)
@@ -189,8 +190,6 @@ serverEvent.on(serverEvents.PLAYER_STATE, state => {
   const user = gameServer.getUserByUid(state.userId)
   if (!user) return
 
-  // console.log(`Server Event ${serverEvents.PLAYER_STATE}`)
-
   user.socket.broadcast.emit(serverEvents.PLAYER_STATE, state)
 })
 
@@ -210,6 +209,10 @@ serverEvent.on(serverEvents.PLAYER_LEFT, left => {
   console.log(`Server Event ${serverEvents.PLAYER_LEFT} ${user.uid}(${user.pseudo})`)
 
   user.state = userStates.DISCONNECTED
+
+  const room = gameServer.getRoomByUid(user.roomId)
+  user.roomId = null
+  room.deleteUser(user.uid)
 
   user.socket.broadcast.emit(serverEvents.PLAYER_LEFT, left)
 })
