@@ -22,8 +22,8 @@ class Room {
     this.userIds = []
   }
 
-  addUser (user) {
-    this.userIds.push(user.uid)
+  addUser (userId) {
+    this.userIds.push(userId)
   }
 
   get free () {
@@ -41,8 +41,8 @@ class User {
     this.roomId = null
   }
 
-  setRoom (room) {
-    this.roomId = room.uid
+  setRoom (roomId) {
+    this.roomId = roomId
   }
 }
 
@@ -58,24 +58,42 @@ class GameServer {
   createRoom () {
     const room = new Room()
     this.rooms.push(room)
-    return room.uid
+    return room
   }
 
   get freeRoom () {
-    return this.rooms.find((room) => {
+    return this.rooms.find(room => {
       return room.free
     })
   }
 
-  createUser (pseudo) {
+  createUser (pseudo, socket) {
     const user = new User(pseudo)
     this.users.push(user)
-    serverEvent.emit(serverEvents.PLAYER_LOGGED, user)
-    return user.uid
+
+    let room = gameServer.freeRoom
+
+    if (!room) {
+      room = gameServer.createRoom()
+    }
+
+    user.setRoom(room.uid)
+    room.addUser(user.uid)
+
+    socket.emit(serverEvents.PLAYER_LOGGED, {
+      userId: user.uid,
+      roomId: room.uid
+    })
+  }
+
+  getRoomByUid (uid) {
+    return this.rooms.find(room => {
+      return room.uid === uid
+    })
   }
 
   getUserByUid (uid) {
-    return this.users.find((user) => {
+    return this.users.find(user => {
       return user.uid === uid
     })
   }
@@ -83,29 +101,55 @@ class GameServer {
 
 const gameServer = new GameServer()
 
-serverEvent.on(serverEvents.PLAYER_LOGGED, (user) => {
-  const freeRoom = gameServer.freeRoom
+serverEvent.on(serverEvents.PLAYER_READY, ready => {
+  // console.log(`Server event ${gameServer.serverEvents.PLAYER_READY}`)
 
-  if (!freeRoom) {
-    gameServer.createRoom()
-    serverEvent.emit(serverEvents.PLAYER_LOGGED, user)
-  } else {
-    user.setRoom(freeRoom)
-    freeRoom.addUser(user)
-  }
-})
-
-serverEvent.on(serverEvents.PLAYER_READY, (ready) => {
+  const user = gameServer.getUserByUid(ready.userId)
+  if (!user) return
+  const room = gameServer.getRoomByUid(user.roomId)
+  if (!room) return
   serverEvent.emit(serverEvents.PLAYER_JOINED, ({
-    uid: ready.uid
+    userId: ready.userId,
+    roomId: room.uid
   }))
 })
 
-serverEvent.on(serverEvents.PLAYER_JOINED, (player) => {
-  const user = gameServer.getUserByUid(player.uid)
+serverEvent.on(serverEvents.PLAYER_JOINED, player => {
+  // console.log(`Server event ${gameServer.serverEvents.PLAYER_JOINED}`)
+
+  const user = gameServer.getUserByUid(player.userId)
   if (!user) return
+  const room = gameServer.getRoomByUid(player.roomId)
+  if (!room) return
+
   user.socket.emit(serverEvents.PLAYER_JOINED, player)
+  user.socket.broadcast.emit(serverEvents.PLAYER_JOINED, player)
+
+  for (const inRoomUserId of room.userIds) {
+    const inRoomUser = gameServer.getUserByUid(inRoomUserId)
+    if (user.uid === inRoomUser.uid) continue
+    user.socket.emit(serverEvents.PLAYER_JOINED, {
+      userId: inRoomUser.uid,
+      roomId: inRoomUser.roomId
+    })
+  }
+
   user.state = userStates.PLAYING
+
+  user.socket.on(serverEvents.PLAYER_STATE, state => {
+    // console.log(`Socket event ${gameServer.serverEvents.PLAYER_STATE}`)
+
+    serverEvent.emit(serverEvents.PLAYER_STATE, state)
+  })
+})
+
+serverEvent.on(serverEvents.PLAYER_STATE, state => {
+  // console.log(`Server event ${gameServer.serverEvents.PLAYER_STATE}`)
+
+  const user = gameServer.getUserByUid(state.userId)
+  if (!user) return
+
+  user.socket.broadcast.emit(serverEvents.PLAYER_STATE, state)
 })
 
 module.exports = gameServer
