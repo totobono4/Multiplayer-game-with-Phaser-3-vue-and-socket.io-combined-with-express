@@ -12,8 +12,11 @@ export class Trigger extends GameObject{
     {
         super(false);
         this.listeners = [];
-        console.log("coucou")
-        this.object = context.add.zone(x, y*context.getDimentions().height, width, height*context.getDimentions().height)
+        this.object = context.add.zone(x*context.getDimentions().height, y*context.getDimentions().height, width*context.getDimentions().height, height*context.getDimentions().height)
+        this.object.setPosition(
+            this.object.x+(this.object.height)/2,            
+            this.object.y+(this.object.height)/2
+        )        
         context.physics.world.enable(this.object, 1);
         this.context=context;
     }

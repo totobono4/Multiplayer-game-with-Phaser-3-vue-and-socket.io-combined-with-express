@@ -65,10 +65,7 @@ class Player extends GameObject{
 
     public respawn()
     {
-        this.object.body.setVelocityX(0)
-        this.object.body.setVelocityY(0)
-        this.object.x = this.spawnPoint.x
-        this.object.y = this.spawnPoint.y-10
+        this.object.body.reset(this.spawnPoint.x, this.spawnPoint.y)
     }
 
     public getId(){

@@ -100,7 +100,7 @@ abstract class Level extends Phaser.Scene{
         {
             if(player.x > player.width/2)
             {
-                player.setVelocityX(-160);
+                player.setVelocityX(-GameConstants.PLAYER_VELOCITY);
                 player.anims.play('left', true);
             }
             else
@@ -110,7 +110,7 @@ abstract class Level extends Phaser.Scene{
         }
         else if (cursors.right.isDown)
         {
-            player.setVelocityX(160);
+            player.setVelocityX(GameConstants.PLAYER_VELOCITY);
             player.anims.play('right', true);
         }
         else
@@ -188,7 +188,7 @@ abstract class Level extends Phaser.Scene{
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
         let spawnPoint = this.getSpawnPoint();
-        this.player.setSpawnPoint(spawnPoint.x, spawnPoint.y*this.getDimentions().height);
+        this.player.setSpawnPoint(spawnPoint.x*this.getDimentions().height, spawnPoint.y*this.getDimentions().height);
         this.player.respawn();
         this.onPlayerSpawned(this.player);
     }
@@ -203,10 +203,12 @@ abstract class Level extends Phaser.Scene{
     protected setBackground(key:string)
     {
         let bg = this.add.image(0, 0, key);
-        let scaleX = this.dims.width / bg.width
-        let scaleY = this.dims.height / bg.height
-        bg.scaleX = scaleX*2;
-        bg.scaleY = scaleY*2;
+        bg.scaleX = this.getDimentions().width/bg.height;
+        bg.scaleY = this.getDimentions().height/bg.height;
+        bg.setPosition(
+            bg.x+(bg.height*bg.scaleX)/2,            
+            bg.y+(bg.height*bg.scaleY)/2
+        )
         bg.setScrollFactor(0)
     }
 
