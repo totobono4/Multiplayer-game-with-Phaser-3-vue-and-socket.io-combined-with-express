@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
 })
 
 server.listen(PORT, () => {
-  console.log(`Serveur Graph-Form à l'écoute sur le port ${PORT}`)
+  console.log('Serveur Graph-Form ouvert!')
 })
 
 app.use(history())
