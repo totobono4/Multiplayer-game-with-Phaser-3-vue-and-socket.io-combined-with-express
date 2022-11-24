@@ -1,5 +1,9 @@
 # NodeProject
 
+N'oublie pas de lire les autres README stp.  
+📄 [backend README](backend/README.md)  
+📄 [frontend README](frontend/README.md)
+
 ## Docker
 
 ### Dev
