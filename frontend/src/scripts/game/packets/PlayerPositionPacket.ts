@@ -1,4 +1,3 @@
-import Player from "../player";
 import {Packet} from "./packet";
 
 class PlayerPositionPacket extends Packet
