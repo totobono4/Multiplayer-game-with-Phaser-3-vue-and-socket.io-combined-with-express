@@ -1,4 +1,4 @@
-import {Packet} from "./packets/packet"
+import {Packet, PacketChannel} from "./packets/packet"
 import {io, Socket} from "socket.io-client"
 import { GameEventBase } from "./events/gameeventbase";
 import EventManager from "./eventmanager";
@@ -13,15 +13,15 @@ class PacketManager{
         this.socket = io(url)
     }
 
-    public send(channel:string, packet:Packet)
+    public send(channel:PacketChannel, packet:Packet)
     {
-        this.socket.emit(channel, packet.toJson());
+        this.socket.emit(channel, packet.export());
     }
 
     public on(channel:string, callback:(data:any)=>GameEventBase)
     {
         this.socket.on(channel, (data)=>{
-            EventManager.getInstance().emit(callback(JSON.parse(data)))
+            EventManager.getInstance().emit(callback(data))
         })
     }
 }

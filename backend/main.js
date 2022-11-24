@@ -3,7 +3,7 @@ const path = require('path')
 const frontPath = path.resolve('/front')
 
 require('dotenv').config()
-const port = process.env.port
+const PORT = process.env.PORT || 3000
 
 const history = require('connect-history-api-fallback')
 const express = require('express')
@@ -39,8 +39,8 @@ io.on('connection', (socket) => {
   })
 })
 
-server.listen(port, () => {
-  console.log(`Serveur Graph-Form à l'écoute sur le port ${port}`)
+server.listen(PORT, () => {
+  console.log(`Serveur Graph-Form à l'écoute sur le port ${PORT}`)
 })
 
 app.use(history())

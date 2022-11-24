@@ -1,11 +1,9 @@
-import Star from "../collectibles/star";
 import Level from "../level";
 
 import skySprite from "../assets/sky.png"
 import platformSprite from "../assets/platform.png"
 import starSprite from "../assets/star.png"
 import dudeSprite from "../assets/dude.png"
-import bombSprite from "../assets/bomb.png"
 
 class Level1 extends Level{
 
@@ -19,15 +17,13 @@ class Level1 extends Level{
         this.load.image('sky', skySprite);
         console.log(starSprite)
         this.load.image('ground', platformSprite);
-        this.load.image('star', starSprite);
-        this.load.image('bomb', bombSprite);
         this.load.spritesheet('dude', 
             dudeSprite,
             { frameWidth: 32, frameHeight: 48 }
         );
     }
 
-    protected beforePlayer()
+    protected create()
     {        
         this.add.image(400, 300, 'sky');
 
@@ -35,13 +31,6 @@ class Level1 extends Level{
         this.addPlatform(this.physics.add.staticSprite(600, 400, 'ground'));
         this.addPlatform(this.physics.add.staticSprite(50, 250, 'ground'));
         this.addPlatform(this.physics.add.staticSprite(750, 220, 'ground'));
-    }
-
-    protected afterPlayer(){
-        for(let i = 0; i<400; i+=30)
-        {
-            this.addCollectible(new Star(this, i, 0));
-        }
     }
 }
 

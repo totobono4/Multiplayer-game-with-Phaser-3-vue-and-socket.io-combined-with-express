@@ -9,10 +9,14 @@ import { onMounted } from 'vue'
 const containerId = 'game-container'
 
 onMounted(() => {
-  new Game('100%', '100%')
-    .attachTo(containerId)
-    .registerLevel(Level1, true)
-    .start()
+  try {
+    new Game('100%', '100%')
+      .attachTo(containerId)
+      .registerLevel(new Level1(), true)
+      .start()
+  } catch {
+    window.location.replace('/login')
+  }
 })
 
 </script>
