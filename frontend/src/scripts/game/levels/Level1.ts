@@ -9,7 +9,7 @@ class Level1 extends Level{
 
     public constructor()
     {      
-        super("level 1", 0)  
+        super("level 1")  
     }    
 
     protected loadAssets()
@@ -27,7 +27,7 @@ class Level1 extends Level{
         console.log(this.dims.height);
         this.setBackground("sky")
 
-        this.addPlatform(new Platform(this, 0, 0.95, 5, 0.001));
+        this.addPlatform(new Platform(this, 0, 0.98, 5, 0.003));
     }
 
     protected getSpawnPoint(): { x: number; y: number; } {

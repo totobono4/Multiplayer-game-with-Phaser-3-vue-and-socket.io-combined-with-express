@@ -15,7 +15,7 @@ class Player extends GameObject{
     
     public constructor(context:Level, pseudo:string, uid:string, roomId:string, platformTransformist:boolean|null = null, weight:number=60)
     {
-        super(false);
+        super(true);
         this.pseudo=pseudo;
         this.spawnPoint={x:0, y:0};
         this.roomId=roomId;
