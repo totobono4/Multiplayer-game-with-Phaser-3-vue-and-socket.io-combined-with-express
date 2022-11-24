@@ -4,7 +4,9 @@ import Player from "./gameobjects/player";
 import Phaser from "phaser"
 import EventManager from "./eventmanager";
 import { EventType } from "./events/gameeventbase";
-import type Platform from "./gameobjects/platform";
+import Platform from "./gameobjects/platform";
+import { Trigger } from "./gameobjects/trigger";
+import Game from "./game";
 
 abstract class Level extends Phaser.Scene{
     
@@ -14,6 +16,8 @@ abstract class Level extends Phaser.Scene{
     private objects:GameObject[];
     private lastUpdateDate:number;
     protected dims:{width:number, height:number};
+    private jumpCounter:number;
+    private lastPlatformTouchFrames:number;
 
     protected constructor(name:string, gravity:number=GameConstants.BASE_GRAVITY)
     {
@@ -24,7 +28,7 @@ abstract class Level extends Phaser.Scene{
             {
                 default: 'arcade',
                 arcade: {
-                    debug: false,
+                    debug: Game.DEBUG_MODE,
                     gravity:
                     {
                         y: gravity
@@ -32,6 +36,8 @@ abstract class Level extends Phaser.Scene{
                 }
             },
         });
+        this.lastPlatformTouchFrames = 0;
+        this.jumpCounter = GameConstants.MAX_JUMPING_FRAMES;
         this.dims = {width:0, height:0};
         this.platforms = []
         this.objects = []
@@ -54,14 +60,45 @@ abstract class Level extends Phaser.Scene{
         }
     }
     
-    protected addPlatform(platform:Platform)
+    protected addPlatform(x:number, y:number, width:number, height:number, repeat:{x?:number|undefined, y?:number|undefined}|undefined = undefined)
     {
-        this.platforms.push(platform);
-        this.objects.push(platform);
-        for(let o of this.objects)
+        if(repeat)
         {
-            if(o.isAffectedByGravity())
-                this.setPlatformColliders(o, platform);
+            for(let xl = 0; xl<(repeat.x||1); xl++)
+            {
+                for(let yl = 0; yl<(repeat.y||1); yl++)
+                {
+                    let platform = new Platform(this, x+xl*width, y+yl*height, width, height);                    
+                    this.platforms.push(platform);
+                    this.objects.push(platform);
+                    for(let o of this.objects)
+                    {
+                        if(o.isAffectedByGravity())
+                            this.setPlatformColliders(o, platform);
+                    }
+                }
+            }
+        }
+        else
+        {
+            let platform = new Platform(this, x, y, width, height);  
+            this.platforms.push(platform);
+            this.objects.push(platform);
+            for(let o of this.objects)
+            {
+                if(o.isAffectedByGravity())
+                    this.setPlatformColliders(o, platform);
+            }
+        }
+    }
+
+    protected addTrigger(x:number, y:number, width:number, height:number, cb:()=>void)
+    {
+        if(this.player)
+        {
+            let trigger = new Trigger(this, x, y, width, height)
+            .setOverlapWithPlayer(this.player, cb);
+            this.objects.push(trigger);
         }
     }
 
@@ -75,30 +112,28 @@ abstract class Level extends Phaser.Scene{
         }
     }
     
-    public update()
+    public update(time:any, delta:any)
     {
         const scrolling = 5;
         if(!this.player) return;
-        let player = this.player.phaserObject();
-        let cursors = this.input.keyboard.addKeys(
-            {up:Phaser.Input.Keyboard.KeyCodes.SPACE,
+        const player = this.player.phaserObject();
+        const cursors = this.input.keyboard.addKeys(
+        {
+            up:Phaser.Input.Keyboard.KeyCodes.SPACE,
             left:Phaser.Input.Keyboard.KeyCodes.Q,
-            right:Phaser.Input.Keyboard.KeyCodes.D}) as any;
+            right:Phaser.Input.Keyboard.KeyCodes.D,
+            run:Phaser.Input.Keyboard.KeyCodes.SHIFT
+        }) as any;
+        const playerVelocity = GameConstants.PLAYER_VELOCITY*(cursors.run.isDown ? GameConstants.PLAYER_RUN_FACTOR : 1)*delta*this.dims.height
+        const playerJump = GameConstants.PLAYER_JUMP_FORCE*this.dims.height*delta;
         if (cursors.left.isDown)
         {
-            if(player.x > player.width/2)
-            {
-                player.setVelocityX(-160);
-                player.anims.play('left', true);
-            }
-            else
-            {
-                player.setVelocityX(0);
-            }
+            player.setVelocityX(-playerVelocity);
+            player.anims.play('left', true);
         }
         else if (cursors.right.isDown)
         {
-            player.setVelocityX(160);
+            player.setVelocityX(playerVelocity);
             player.anims.play('right', true);
         }
         else
@@ -106,9 +141,22 @@ abstract class Level extends Phaser.Scene{
             player.setVelocityX(0);
             player.anims.play('turn');
         }
-        if (cursors.up.isDown && player.body.touching.down)
+        if (cursors.up.isDown && (this.jumpCounter > 0 || this.lastPlatformTouchFrames <= GameConstants.KOYOTE_JUMP_THRESHOLD))
         {
-            player.setVelocityY(-GameConstants.PLAYER_JUMP_FORCE*this.dims.height);
+            player.body.setVelocityY(-playerJump);
+            this.jumpCounter-=delta;
+        }
+        if(cursors.up.isUp && !player.body.touching.down && this.lastPlatformTouchFrames > GameConstants.KOYOTE_JUMP_THRESHOLD)
+        {
+            this.jumpCounter = 0;
+        }
+
+        this.lastPlatformTouchFrames += 1;
+
+        if(player.body.touching.down)
+        {
+            this.lastPlatformTouchFrames = 0;
+            this.jumpCounter = GameConstants.MAX_JUMPING_FRAMES;
         }
         
         if(player.x > this.dims.width/2)
@@ -147,6 +195,7 @@ abstract class Level extends Phaser.Scene{
             this.otherPlayers[data.sender] = new Player(this, data.data.userPseudo, data.sender, data.data.roomId, data.data.transformist, 0);
             this.objects.push(this.otherPlayers[data.sender]);
             this.setPlatformColliders(this.otherPlayers[data.sender]);
+            this.onPlayerSpawned(this.otherPlayers[data.sender]);
         })
         EventManager.getInstance().on(EventType.PLAYER_LEFT, data=>{
             if(!(data.sender in this.otherPlayers) || data.sender == this.player?.getUid()) return;
@@ -176,8 +225,9 @@ abstract class Level extends Phaser.Scene{
         this.objects.push(this.player);
         this.setPlatformColliders(this.player);
         let spawnPoint = this.getSpawnPoint();
-        this.player.setSpawnPoint(spawnPoint.x, spawnPoint.y*this.getDimentions().height);
+        this.player.setSpawnPoint(spawnPoint.x*this.getDimentions().height, spawnPoint.y*this.getDimentions().height);
         this.player.respawn();
+        this.onPlayerSpawned(this.player);
     }
 
     public preload()
@@ -190,10 +240,12 @@ abstract class Level extends Phaser.Scene{
     protected setBackground(key:string)
     {
         let bg = this.add.image(0, 0, key);
-        let scaleX = this.dims.width / bg.width
-        let scaleY = this.dims.height / bg.height
-        bg.scaleX = scaleX*2;
-        bg.scaleY = scaleY*2;
+        bg.scaleX = this.getDimentions().width/bg.height;
+        bg.scaleY = this.getDimentions().height/bg.height;
+        bg.setPosition(
+            bg.x+(bg.height*bg.scaleX)/2,            
+            bg.y+(bg.height*bg.scaleY)/2
+        )
         bg.setScrollFactor(0)
     }
 
@@ -206,6 +258,7 @@ abstract class Level extends Phaser.Scene{
     protected onUpdate(timeElapsed:number){}
     protected abstract loadAssets():void;
     protected abstract create():void;
+    protected onPlayerSpawned(player:Player){}
 }
 
 export default Level;

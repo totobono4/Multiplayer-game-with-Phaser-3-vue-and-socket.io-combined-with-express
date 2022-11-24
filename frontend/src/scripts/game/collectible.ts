@@ -12,10 +12,8 @@ abstract class Collectible extends GameObject{
 
     public collectibleBy(player:any)
     {
-        this.context.physics.add.overlap(player, this.object, this.collect, null, this);
+        this.context.physics.add.overlap(player, this.object, this.collect);
     }
-
-    public abstract load():void;
 
     protected abstract collect(player:any, collectible:any):void;
 }
