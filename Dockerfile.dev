@@ -20,7 +20,7 @@ FROM node:18.12.0 as node-backend-build
 WORKDIR /build
 
 COPY backend/main.js .
-COPY backend/back.js .
+COPY backend/game.js .
 COPY backend/.env .
 COPY backend/package.json .
 
