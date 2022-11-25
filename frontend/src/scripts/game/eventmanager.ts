@@ -1,5 +1,8 @@
 import type { EventType, GameEventBase } from "./events/gameeventbase";
 
+/**
+ * manages events for game
+ */
 class EventManager{
     private listeners:{[key: string]:((e:GameEventBase)=>void)[]}
     private static instance:EventManager|null = null;
@@ -18,6 +21,11 @@ class EventManager{
         return this.instance;
     }
 
+    /**
+     * add a callback for event type name
+     * @param name 
+     * @param cb 
+     */
     public on(name:EventType, cb:(e:GameEventBase)=>void)
     {
         if(name in this.listeners)
@@ -30,6 +38,11 @@ class EventManager{
         }
     }
 
+    /**
+     * emits the event e
+     * @param e 
+     * @returns 
+     */
     public emit(e:GameEventBase)
     {
         if(!(e.name in this.listeners)) return;

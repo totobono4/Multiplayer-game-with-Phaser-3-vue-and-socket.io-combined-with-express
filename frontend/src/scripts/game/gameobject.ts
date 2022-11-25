@@ -1,3 +1,7 @@
+
+/**
+ * base game object class
+ */
 abstract class GameObject{
     protected weight:number|null;
     protected object:any;

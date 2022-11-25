@@ -10,6 +10,9 @@ import { PacketChannel } from "./packets/packet";
 import PlayerPositionPacket from "./packets/playerpositionpacket";
 import PlayerReadyPacket from "./packets/playerreadypacket";
 
+/**
+ * Game booting class
+ */
 class Game{
     private config:any;
     private pmanager:PacketManager;
@@ -35,10 +38,16 @@ class Game{
         this.currentLevel = null;
         this.pmanager = new PacketManager(`${import.meta.env.VITE_SOCKET_HOST || window.location.hostname}:${import.meta.env.VITE_SOCKET_PORT || window.location.port}`);
 
+        /**
+         * sends a player state when needed
+         */
         EventManager.getInstance().on(EventType.PLAYER_STATE_READY, data=>{
             this.pmanager.send(PacketChannel.PLAYER_STATE, new PlayerPositionPacket(data.sender, data.data))
         })
 
+        /**
+         * sets callbacks for socket packets
+         */
         this.pmanager.on(PacketChannel.PLAYER_STATE, data=>{
             return new PlayerStateRecievedEvent(data.userId, data.data)
         })
@@ -67,12 +76,23 @@ class Game{
         })
     }
 
+    /**
+     * set the parent container of this canvas
+     * @param container 
+     * @returns 
+     */
     public attachTo(container:string)
     {
         this.config.parent=container;
         return this;
     }
 
+    /**
+     * add a level to the game, setting first to true will make it the fist level to appear
+     * @param level 
+     * @param first 
+     * @returns 
+     */
     public registerLevel(level:Level, first:boolean=false)
     {
         if(!this.config.scenes.includes(level))
@@ -87,6 +107,9 @@ class Game{
         return this;
     }
 
+    /**
+     * launched the game
+     */
     public start()
     {
         let uid:string = localStorage.getItem("uid") || "";
