@@ -151,18 +151,18 @@ abstract class Level extends Phaser.Scene{
             const playerJump = GameConstants.PLAYER_JUMP_FORCE*this.dims.height;
             if (cursors.left.isDown)
             {
-                player.setVelocityX(-playerVelocity);
-                player.anims.play('left', true);
+                player.body.setVelocityX(-playerVelocity);
+                this.player.playAnimation('left')
             }
             else if (cursors.right.isDown)
             {
-                player.setVelocityX(playerVelocity);
-                player.anims.play('right', true);
+                player.body.setVelocityX(playerVelocity);
+                this.player.playAnimation('right')
             }
             else
             {
-                player.setVelocityX(0);
-                player.anims.play('turn');
+                player.body.setVelocityX(0);
+                this.player.playAnimation('turn')
             }
             if (cursors.up.isDown && (this.jumpCounter > 0 || this.lastPlatformTouchFrames <= GameConstants.KOYOTE_JUMP_THRESHOLD))
             {
@@ -196,13 +196,13 @@ abstract class Level extends Phaser.Scene{
         }
         else
         {            
-            this.player.phaserObject().anims.play('turn');
+            this.player.playAnimation('turn');
         }
 
         EventManager.getInstance().emit({
             data:{
                 pos:this.player.getSpritePosition(this.dims),
-                animationstate:this.player.phaserObject().anims.currentAnim.key,
+                animationstate:this.player.getAnims().currentAnim.key,
                 velocity:this.player.phaserObject().body.velocity,
                 roomId:this.player.getRoomId()
             },
@@ -222,8 +222,8 @@ abstract class Level extends Phaser.Scene{
                 x:e.data.pos.x*this.dims.height,
                 y:e.data.pos.y*this.dims.height
             })
-            if(this.otherPlayers[e.sender].phaserObject().anims.currentAnim?.key !== e.data.animationstate)
-                this.otherPlayers[e.sender].phaserObject().anims.play(e.data.animationstate)
+            if(this.otherPlayers[e.sender].getAnims().currentAnim?.key !== e.data.animationstate)
+                this.otherPlayers[e.sender].getAnims().play(e.data.animationstate)
             this.otherPlayers[e.sender].phaserObject().body.setVelocityX(e.data.velocity.x)
             this.otherPlayers[e.sender].phaserObject().body.setVelocityY(e.data.velocity.y)
         })
