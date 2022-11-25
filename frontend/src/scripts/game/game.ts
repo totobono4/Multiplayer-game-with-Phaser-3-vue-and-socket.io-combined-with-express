@@ -92,7 +92,7 @@ class Game{
         let uid:string = localStorage.getItem("uid") || "";
         if(uid == "") throw "user not connected";
         this.pmanager.send(PacketChannel.PLAYER_READY_SEND, new PlayerReadyPacket(uid))
-        new Phaser.Game(this.config);
+        const game = new Phaser.Game(this.config);
     }
 }
 

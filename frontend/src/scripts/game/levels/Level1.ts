@@ -44,24 +44,29 @@ class Level1 extends Level{
             tutorial.y+(tutorial.height*tutorial.scaleY)/2
         )
 
-        const blockSize = 0.05
+        this.addPlatform(-1, this.floor-10, 1, 10);
+        this.addPlatform(0, this.floor, 1, 1, {x:78, y:3});
+        this.addPlatform(80, this.floor, 1, 1, {x:15, y:3});
+        this.addPlatform(98, this.floor, 1, 1, {x:64, y:3});
+        this.addPlatform(164,this.floor, 1, 1, {x:51, y:3});
+        this.addPlatform(37, this.floor-2, 2, 2);
+        this.addPlatform(47, this.floor-3, 2, 3);
+        this.addPlatform(55, this.floor-4, 2, 4);
+        this.addPlatform(66, this.floor-4, 2, 4);
 
-        this.addPlatform(0, 0.95, blockSize, blockSize, {x:57, y:1});
-        this.addPlatform(-blockSize, 0.95-blockSize*10, blockSize, blockSize*10);
-        this.addPlatform(blockSize*37, 0.95-blockSize*2, blockSize*2, blockSize*2);
-        this.addPlatform(blockSize*47, 0.95-blockSize*3, blockSize*2, blockSize*3);
-        this.addPlatform(blockSize*55, 0.95-blockSize*4, blockSize*2, blockSize*4);
-
-        this.collectibles.push(new Star(this, blockSize*25, 0.95-blockSize*5, blockSize, blockSize))
-
+        this.collectibles.push(new Star(this, 25, this.floor-5, 1, 1))
     }
 
     protected onPlayerSpawned(player: Player): void {        
-        this.addTrigger(0, 1.1, 1000000, 0.1, ()=>{
-            player.respawn();
-            let campos = player.phaserObject().x;
+        this.addTrigger(0, this.floor+2, 215, 1, player, (p)=>{
+            p.respawn();
+            let campos = p.phaserObject().x;
             if(campos < this.dims.width/2) campos = this.dims.width/2;
             this.cameras.main.centerOnX(campos)
+        })
+
+        this.addTrigger(200, this.floor-6, 1, 6, player, (p)=>{
+            p.setMobility(false);            
         })
         for(let collectible of this.collectibles)
         {

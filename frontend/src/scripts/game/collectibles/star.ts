@@ -1,11 +1,16 @@
 import Collectible from "../collectible";
+import type Level from "../level";
 
 class Star extends Collectible
 {
 
-    public constructor(pc:any, x:number, y:number, width:number, height:number)
+    public constructor(pc:Level, x:number, y:number, width:number, height:number)
     {
-        super(pc);        
+        super(pc);   
+        x *= pc.blockSize
+        y *= pc.blockSize
+        width *= pc.blockSize
+        height *= pc.blockSize    
         this.object = this.context.physics.add.sprite(x*this.context.getDimentions().height, y*this.context.getDimentions().height, 'star');
         this.object.scaleX = width*pc.getDimentions().height/this.object.height;
         this.object.scaleY = height*pc.getDimentions().height/this.object.height;

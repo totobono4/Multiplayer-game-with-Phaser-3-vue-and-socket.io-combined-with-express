@@ -90,6 +90,10 @@ class Player extends GameObject{
     public setMobility(value:boolean)
     {
         this.allowedToMove = value;
+        if(!value)
+        {
+            this.object.body.reset(this.object.x, this.object.y);
+        }
     }
 
     public getUid()
@@ -100,7 +104,7 @@ class Player extends GameObject{
     public getSpritePosition(dimentions:{width:number, height:number})
     {
         return {
-            x:this.object.x/dimentions.width,
+            x:this.object.x/dimentions.height,
             y:this.object.y/dimentions.height
         }
     }

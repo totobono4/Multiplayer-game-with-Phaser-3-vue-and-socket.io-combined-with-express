@@ -5,7 +5,7 @@ import type Player from "./player";
 
 export class Trigger extends GameObject{
 
-    private listeners:{object:any, cb:()=>void}[]
+    private listeners:{object:any, player:Player, cb:(player:Player)=>void}[]
     private context:Level;
 
     public constructor(context:Level, x:number, y:number, width:number, height:number)
@@ -28,14 +28,14 @@ export class Trigger extends GameObject{
         })[0]
         if(object)
         {
-            return object.cb();
+            return object.cb(object.player);
         }
     }
 
-    public setOverlapWithPlayer(player:Player, cb:()=>void)
+    public setOverlapWithPlayer(player:Player, cb:(player:Player)=>void)
     {
         this.context.physics.add.overlap(player.phaserObject(), this.object, this.onOverlap.bind(this))
-        this.listeners.push({object:player.phaserObject(), cb})
+        this.listeners.push({object:player.phaserObject(), player, cb})
         return this;
     }
 
