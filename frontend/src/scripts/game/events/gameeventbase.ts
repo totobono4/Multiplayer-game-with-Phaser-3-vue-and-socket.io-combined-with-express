@@ -5,6 +5,9 @@ enum EventType{
     PLAYER_LEFT
 }
 
+/**
+ * base class for event handleing
+ */
 abstract class GameEventBase{
 
     protected constructor(name:EventType, sender:string, data:any)

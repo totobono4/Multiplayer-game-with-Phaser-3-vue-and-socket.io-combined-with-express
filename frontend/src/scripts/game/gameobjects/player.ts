@@ -3,6 +3,10 @@ import GameObject from "../gameobject";
 import type Level from "../level";
 import Observable from "../observable";
 
+/**
+ * The player is a game object
+ * it is composed of a container containing the player sprite and its pseudo
+ */
 class Player extends GameObject{
 
     private position:Observable<{x:number, y:number}>;
@@ -97,6 +101,11 @@ class Player extends GameObject{
         return this.roomId;
     }
 
+    /**
+     * Unused yet
+     * return true if the player can transform into a platform
+     * @returns 
+     */
     public platformTransformist()
     {
         return this.isPlatformTransformist;

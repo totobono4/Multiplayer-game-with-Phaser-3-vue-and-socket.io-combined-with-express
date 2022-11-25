@@ -1,6 +1,9 @@
 import Collectible from "../collectible";
 import type Level from "../level";
 
+/**
+ * The star collectible
+ */
 class Star extends Collectible
 {
 
