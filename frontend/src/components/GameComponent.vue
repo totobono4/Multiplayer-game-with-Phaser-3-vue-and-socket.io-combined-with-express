@@ -14,8 +14,9 @@ onMounted(() => {
       .attachTo(containerId)
       .registerLevel(new Level1(), true)
       .start()
-  } catch {
-    window.location.replace('/login')
+  } catch (e) {
+    console.log(e)
+    // window.location.replace('/login')
   }
 })
 

@@ -11,31 +11,41 @@ class Player extends GameObject{
     private allowedToMove:boolean;
     private roomId:string;
     private spawnPoint:{x:number, y:number};
-    private pseudo:string;
+    private playerObj:any;
     
     public constructor(context:Level, pseudo:string, uid:string, roomId:string, platformTransformist:boolean|null = null, weight:number=60)
     {
         super(true);
-        this.pseudo=pseudo;
         this.spawnPoint={x:0, y:0};
         this.roomId=roomId;
         this.uid=uid;
         this.isPlatformTransformist = platformTransformist ?? Math.random()<0.5;
         this.position = new Observable<{x:number, y:number}>({x:0, y:0});
         this.weight = weight;
-        let player = context.physics.add.sprite(0, 0, 'dude');
         this.allowedToMove = true;
-
-        player.setBounce(constants.PLAYER_BOUNCE, 0);
         
         let playerScale = 0.0015
+        let player = context.add.sprite(0, 0, 'dude');
         player.scale=playerScale*context.getDimentions().height
-        player.refreshBody();
 
-        this.object = player;
+        const container = context.add.container(0, 0);
+        container.add(player)
+        const text = context.add.text(0, 0, pseudo);
+        player.setOrigin(0.5, 0.5)
+        text.setOrigin(0.5, 2.5)
+        text.setColor("0x000000")
+        container.add(text)
+        container.setSize(player.width*player.scaleX, player.height*player.scaleY)
+
+        context.physics.world.enable(container)
+        this.object = container;
+        container.body.setBounce(constants.PLAYER_BOUNCE, 0)
+
         this.position.addChangeListener((pos)=>{
             this.object.setPosition(pos.x, pos.y);
         })
+
+        this.playerObj = player;
 
         context.anims.create({
             key: 'left',
@@ -56,6 +66,16 @@ class Player extends GameObject{
             frameRate: 10,
             repeat: -1
         });
+    }
+
+    public getAnims()
+    {
+        return this.playerObj.anims;
+    }
+
+    public playAnimation(key:string)
+    {
+        this.playerObj.anims.play(key, true);
     }
 
     public setSpawnPoint(x:number, y:number)
@@ -90,6 +110,10 @@ class Player extends GameObject{
     public setMobility(value:boolean)
     {
         this.allowedToMove = value;
+        if(!value)
+        {
+            this.object.body.reset(this.object.x, this.object.y);
+        }
     }
 
     public getUid()
@@ -100,7 +124,7 @@ class Player extends GameObject{
     public getSpritePosition(dimentions:{width:number, height:number})
     {
         return {
-            x:this.object.x/dimentions.width,
+            x:this.object.x/dimentions.height,
             y:this.object.y/dimentions.height
         }
     }
